@@ -5,7 +5,7 @@
 #include <vector>
 #include "dataBase/sqlite3.h"
 
-#endif // !_fileReader
+#endif // !_dataBase
 
 using namespace std;
 
@@ -14,4 +14,5 @@ class dataBase {
 public:
 	dataBase(const char* loc);
 	void creatTable();
+	void addSingleRecord();
 };
