@@ -127,12 +127,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="fileReader.cpp" />
+    <ClCompile Include="dataBase\sqlite3.c" />
+    <ClCompile Include="dataBase.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="products.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="fileReader.hpp" />
+    <ClInclude Include="dataBase\sqlite3.h" />
+    <ClInclude Include="dataBase.hpp" />
     <ClInclude Include="products.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
