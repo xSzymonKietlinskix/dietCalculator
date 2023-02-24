@@ -2,17 +2,34 @@
 
 
 dataBase::dataBase(const char* loc) {
-	sqlite3* dB;
 	location = loc;
-
-	int exit = 0;
-	exit = sqlite3_open(loc, &dB);
-
-	sqlite3_close(dB);
+	openBase();
 }
 
-void dataBase::creatTable() {
-	sqlite3* dB;
+void dataBase::changeLocation(const char* loc) {
+	location = loc;
+}
+
+void dataBase::openBase() {
+	int opening_status;
+	try {
+		opening_status = sqlite3_open(location, &dB);
+		if (opening_status != SQLITE_OK) {
+			throw opening_status;
+		}
+	}
+	catch (const exception& e)
+	{
+		cerr << e.what();
+	}
+	isOpen = true;
+}
+void dataBase::closeBase() {
+	sqlite3_close(dB);
+	isOpen = false;
+}
+
+void dataBase::creatDefaultTable() {
 	char* messageError;
 
 	string sql = "CREATE TABLE IF NOT EXISTS PRODUCTS("
@@ -20,21 +37,19 @@ void dataBase::creatTable() {
 		"TYPE      TEXT NOT NULL, "
 		"NAME     TEXT NOT NULL, "
 		"CALORIESS      FLOAT  NOT NULL, "
-		"PRICE   FLOAT  NOT NULL);";
+		"PRICE   FLOAT  NOT NULL, "
+		"USAGE INT);";
 
 	try
 	{
-		int exit = 0;
-		exit = sqlite3_open(location, &dB);
-		/* An open database, SQL to be evaluated, Callback function, 1st argument to callback, Error msg written here */
+		int exit;
 		exit = sqlite3_exec(dB, sql.c_str(), NULL, 0, &messageError);
 		if (exit != SQLITE_OK) {
-			cerr << "Error in createTable function." << endl;
+			cerr << "Error in createDefaultTable function." << endl;
 			sqlite3_free(messageError);
 		}
 		else
 			cout << "Table created Successfully" << endl;
-		sqlite3_close(dB);
 	}
 	catch (const exception& e)
 	{

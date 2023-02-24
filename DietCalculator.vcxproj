@@ -141,27 +141,27 @@
   <ItemGroup>
     <ClCompile Include="dataBase.cpp" />
     <ClCompile Include="dataBase\sqlite3.c" />
-    <ClCompile Include="include\imgui-SFML.cpp" />
-    <ClCompile Include="include\imgui.cpp" />
-    <ClCompile Include="include\imgui_demo.cpp" />
-    <ClCompile Include="include\imgui_draw.cpp" />
-    <ClCompile Include="include\imgui_tables.cpp" />
-    <ClCompile Include="include\imgui_widgets.cpp" />
+    <ClCompile Include="imGui\imgui-SFML.cpp" />
+    <ClCompile Include="imGui\imgui.cpp" />
+    <ClCompile Include="imGui\imgui_demo.cpp" />
+    <ClCompile Include="imGui\imgui_draw.cpp" />
+    <ClCompile Include="imGui\imgui_tables.cpp" />
+    <ClCompile Include="imGui\imgui_widgets.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="products.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dataBase\sqlite3.h" />
     <ClInclude Include="dataBase.hpp" />
-    <ClInclude Include="include\imconfig-SFML.h" />
-    <ClInclude Include="include\imconfig.h" />
-    <ClInclude Include="include\imgui-SFML.h" />
-    <ClInclude Include="include\imgui-SFML_export.h" />
-    <ClInclude Include="include\imgui.h" />
-    <ClInclude Include="include\imgui_internal.h" />
-    <ClInclude Include="include\imstb_rectpack.h" />
-    <ClInclude Include="include\imstb_textedit.h" />
-    <ClInclude Include="include\imstb_truetype.h" />
+    <ClInclude Include="imGui\imconfig-SFML.h" />
+    <ClInclude Include="imGui\imconfig.h" />
+    <ClInclude Include="imGui\imgui-SFML.h" />
+    <ClInclude Include="imGui\imgui-SFML_export.h" />
+    <ClInclude Include="imGui\imgui.h" />
+    <ClInclude Include="imGui\imgui_internal.h" />
+    <ClInclude Include="imGui\imstb_rectpack.h" />
+    <ClInclude Include="imGui\imstb_textedit.h" />
+    <ClInclude Include="imGui\imstb_truetype.h" />
     <ClInclude Include="products.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
