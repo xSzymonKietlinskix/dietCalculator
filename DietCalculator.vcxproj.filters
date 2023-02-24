@@ -13,18 +13,42 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Pliki nagłówkowe\imgui">
+      <UniqueIdentifier>{5f0a6cc6-f637-4bd2-bba8-7738b75854d4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Pliki źródłowe\imgui">
+      <UniqueIdentifier>{bc5b50db-9b04-4737-aedd-2cbcf9962cda}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
-      <Filter>Pliki źródłowe</Filter>
-    </ClCompile>
-    <ClCompile Include="dataBase.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
     <ClCompile Include="products.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
     <ClCompile Include="dataBase\sqlite3.c">
+      <Filter>Pliki źródłowe</Filter>
+    </ClCompile>
+    <ClCompile Include="include\imgui.cpp">
+      <Filter>Pliki źródłowe\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="include\imgui_demo.cpp">
+      <Filter>Pliki źródłowe\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="include\imgui_draw.cpp">
+      <Filter>Pliki źródłowe\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="include\imgui_tables.cpp">
+      <Filter>Pliki źródłowe\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="include\imgui_widgets.cpp">
+      <Filter>Pliki źródłowe\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="include\imgui-SFML.cpp">
+      <Filter>Pliki źródłowe\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="dataBase.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
   </ItemGroup>
@@ -37,6 +61,33 @@
     </ClInclude>
     <ClInclude Include="dataBase\sqlite3.h">
       <Filter>Pliki nagłówkowe</Filter>
+    </ClInclude>
+    <ClInclude Include="include\imconfig.h">
+      <Filter>Pliki nagłówkowe\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="include\imconfig-SFML.h">
+      <Filter>Pliki nagłówkowe\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="include\imgui.h">
+      <Filter>Pliki nagłówkowe\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="include\imgui_internal.h">
+      <Filter>Pliki nagłówkowe\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="include\imgui-SFML.h">
+      <Filter>Pliki nagłówkowe\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="include\imgui-SFML_export.h">
+      <Filter>Pliki nagłówkowe\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="include\imstb_rectpack.h">
+      <Filter>Pliki nagłówkowe\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="include\imstb_textedit.h">
+      <Filter>Pliki nagłówkowe\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="include\imstb_truetype.h">
+      <Filter>Pliki nagłówkowe\imgui</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
