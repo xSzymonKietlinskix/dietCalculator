@@ -57,22 +57,37 @@ void dataBase::creatDefaultTable() {
 	}
 }
 
-void dataBase::addSingleRecord() {
-	sqlite3* dB;
+void dataBase::addSingleRecord(product &p) {
 	char* messageError;
+	int test = 2;
+	string sql = "INSERT INTO PRODUCTS (TYPE, NAME, CALORIESS, PRICE) VALUES(?, ?, ?, ?); ";
+	
+	sqlite3_stmt* stmt;
+	const char* pszTest;
+	int rc = sqlite3_prepare_v2(dB, sql.c_str(), strlen(sql.c_str()), &stmt, &pszTest);
+	if (rc == SQLITE_OK)
+	{
+		sqlite3_bind_text(stmt, 1, p.type.c_str(),p.type.length(),NULL);
+		sqlite3_bind_text(stmt, 2, p.name.c_str(), p.name.length(), NULL);
+		sqlite3_bind_double(stmt, 3, p.caloriess);
+		sqlite3_bind_double(stmt, 4, p.price);
 
-	string sql("INSERT INTO PRODUCTS (TYPE, NAME, CALORIESS, PRICE) VALUES('Meat', 'Chicken', 239, 1.2);");
-		
+		// Commit the binds
 
-	int exit = sqlite3_open(location, &dB);
-	/* An open database, SQL to be evaluated, Callback function, 1st argument to callback, Error msg written here */
-	exit = sqlite3_exec(dB, sql.c_str(), NULL, 0, &messageError);
-	if (exit != SQLITE_OK) {
-		cerr << "Error in insertData function." << endl;
-		sqlite3_free(messageError);
+		sqlite3_step(stmt);
+		sqlite3_finalize(stmt);
+
 	}
-	else
-		cout << "Records inserted Successfully!" << endl;
+
+	//int exit;
+	///* An open database, SQL to be evaluated, Callback function, 1st argument to callback, Error msg written here */
+	//exit = sqlite3_exec(dB, sql.c_str(), NULL, 0, &messageError);
+	//if (exit != SQLITE_OK) {
+	//	cerr << "Error in insertData function." << endl;
+	//	sqlite3_free(messageError);
+	//}
+	//else
+	//	cout << "Records inserted Successfully!" << endl;
 }
 
 

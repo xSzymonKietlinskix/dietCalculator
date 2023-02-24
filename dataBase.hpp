@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include "dataBase/sqlite3.h"
+#include "products.hpp"
 
 #endif // !_dataBase
 
@@ -15,7 +16,7 @@ class dataBase{
 public:
 	dataBase(const char* loc);
 	void creatDefaultTable();
-	void addSingleRecord();
+	void addSingleRecord(product &p);
 	void changeLocation(const char* loc);
 	void openBase();
 	void closeBase();

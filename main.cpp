@@ -10,20 +10,28 @@
 
 using namespace std;
 
-void dataBaseMenu(dataBase& dB) {
+void dataBaseMenu(dataBase& dB, bool &isClicked) {
 
 	if (ImGui::Button("Creat new table"))
 		dB.creatDefaultTable();
-	if (ImGui::Button("Add new record"))
-	{
-		dB.addSingleRecord();
+	if (ImGui::Button("Add new record")) {
+		isClicked = true;
+		ImGui::End();
+	}
+	cout << isClicked;
+	if (isClicked) {
+		
+		ImGui::Begin("test");
+		if (ImGui::Button("Creat new table"))
+			cout << "works";
+		ImGui::End();
 	}
 }
 
 int main(void) {
 	const char* location = "dataBase/newDataBase.db";
 	dataBase dB(location);
-
+	bool isClicked = false;
 
 
 	sf::RenderWindow window(sf::VideoMode(1280, 720), "Diet calculator");
@@ -60,13 +68,13 @@ int main(void) {
 		case none:
 			break;
 		case dataBaseOptions:
-			dataBaseMenu(dB);
+			dataBaseMenu(dB, isClicked);
 			break;
 		default:
 			break;
 
 		}
-		ImGui::End();
+
 
 		window.clear();
 		ImGui::SFML::Render(window);
