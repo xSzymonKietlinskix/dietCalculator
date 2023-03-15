@@ -20,4 +20,5 @@ public:
 	void changeLocation(const char* loc);
 	void openBase();
 	void closeBase();
+	void showBase();
 };

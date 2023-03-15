@@ -18,10 +18,11 @@ public:
 	bool NewRecord;
 	bool butDataBaseMenu;
 	bool butAddNewRecord;
+	bool showData;
 	bool butConfirm;
 	bool countDiet;
 	void toggle(bool& stat);
-	flags() : butDataBaseMenu(false), butAddNewRecord(false), menu(true), NewRecord(false), butConfirm(false), countDiet(false){};
+	flags() : showData(false),butDataBaseMenu(false), butAddNewRecord(false), menu(true), NewRecord(false), butConfirm(false), countDiet(false){};
 };
 
 void flags::toggle(bool& stat) {
@@ -33,9 +34,11 @@ void flags::toggle(bool& stat) {
 
 
 void dataBaseMenu(dataBase& dB, flags &fl) {
-	if (ImGui::Button("Creat new table", ImVec2(300, 50)))
+	if (ImGui::Button("Creat new table", ImVec2(600, 100)))
 		dB.creatDefaultTable();
-	if (ImGui::Button("Add new record", ImVec2(300, 50))) {
+	if (ImGui::Button("Show data", ImVec2(600, 100)))
+		dB.showBase();
+	if (ImGui::Button("Add new record", ImVec2(600, 100))) {
 		fl.toggle(fl.butAddNewRecord);
 		cout << "clicked" << endl;
 	}
@@ -49,7 +52,7 @@ void dataBaseMenu(dataBase& dB, flags &fl) {
 		ImGui::InputText("name", n, sizeof(n));
 		ImGui::InputText("price", p, sizeof(p));
 		ImGui::InputText("cal", c, sizeof(c));
-		if (ImGui::Button("Confirm", ImVec2(300, 50))) {
+		if (ImGui::Button("Confirm", ImVec2(600, 100))) {
 			cout << t << endl << n << endl << p << endl << c << endl;;
 			fl.toggle(fl.butConfirm);
 		}
@@ -103,12 +106,12 @@ int main(void) {
 
 			ImGui::Begin("Menu", &fl.menu, ImGuiWindowFlags_NoMove);
 			ImGui::Columns(2);
-			ImGui::SetColumnOffset(1, 430);
+			ImGui::SetColumnOffset(1, 630);
 
 			//ImGui::PushFont(defFont);
-			if (ImGui::Button("Data base menu",ImVec2(300,50)))
+			if (ImGui::Button("Data base menu",ImVec2(600,100)))
 				fl.toggle(fl.butDataBaseMenu);
-			if (ImGui::Button("Count diet", ImVec2(300, 50))) {
+			if (ImGui::Button("Count diet", ImVec2(600, 100))) {
 				fl.toggle(fl.countDiet);
 			}
 			//ImGui::PopFont();

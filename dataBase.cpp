@@ -72,22 +72,27 @@ void dataBase::addSingleRecord(product &p) {
 		sqlite3_bind_double(stmt, 3, p.caloriess);
 		sqlite3_bind_double(stmt, 4, p.price);
 
-		// Commit the binds
-
 		sqlite3_step(stmt);
 		sqlite3_finalize(stmt);
+	}
+}
+static int callback(void* data, int argc, char** argv, char** azColName) {
+	int i;
+	fprintf(stderr, "%s: ", (const char*)data);
 
+	for (i = 0; i < argc; i++) {
+		printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
 	}
 
-	//int exit;
-	///* An open database, SQL to be evaluated, Callback function, 1st argument to callback, Error msg written here */
-	//exit = sqlite3_exec(dB, sql.c_str(), NULL, 0, &messageError);
-	//if (exit != SQLITE_OK) {
-	//	cerr << "Error in insertData function." << endl;
-	//	sqlite3_free(messageError);
-	//}
-	//else
-	//	cout << "Records inserted Successfully!" << endl;
+	printf("\n");
+	return 0;
 }
 
+void dataBase::showBase() {
+	string sql;
+	sql = "SELECT * from PRODUCTS";
+	char* zErrMsg;
+	const char* data = "Callback function called";
+	int rc = sqlite3_exec(dB, sql.c_str(), callback, (void*)data, &zErrMsg);
+}
 
