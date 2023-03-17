@@ -59,13 +59,10 @@ void dataBase::creatDefaultTable() {
 }
 
 void dataBase::addSingleRecord(product &p) {
-	char* messageError;
-	int test = 2;
 	string sql = "INSERT INTO PRODUCTS (TYPE, NAME, CALORIESS, PRICE) VALUES(?, ?, ?, ?); ";
 	
 	sqlite3_stmt* stmt;
-	const char* pszTest;
-	int rc = sqlite3_prepare_v2(dB, sql.c_str(), strlen(sql.c_str()), &stmt, &pszTest);
+	int rc = sqlite3_prepare_v2(dB, sql.c_str(), strlen(sql.c_str()), &stmt, NULL);
 	if (rc == SQLITE_OK)
 	{
 		sqlite3_bind_text(stmt, 1, p.type.c_str(),p.type.length(),NULL);
@@ -77,11 +74,8 @@ void dataBase::addSingleRecord(product &p) {
 		sqlite3_finalize(stmt);
 	}
 }
-static int _showBase(void* data, int argc, char** argv, char** azColName) {
-	int i;
-	fprintf(stderr, "%s: ", (const char*)data);
-
-	for (i = 0; i < argc; i++) 
+static int printBase(void* data, int argc, char** argv, char** azColName) {
+	for (int i = 0; i < argc; i++) 
 		ImGui::Text("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
 	
 	ImGui::Text("\n");
@@ -90,15 +84,70 @@ static int _showBase(void* data, int argc, char** argv, char** azColName) {
 }
 
 void dataBase::showBase() {
-	string sql;
-	sql = "SELECT * from PRODUCTS";
-	char* zErrMsg;
-	const char* data = "Callback function called";
-	int rc = sqlite3_exec(dB, sql.c_str(), _showBase, (void*)data, &zErrMsg);
+	string sql = "SELECT * from PRODUCTS";
+	char* zErrMsg = 0;
+	int rc = sqlite3_exec(dB, sql.c_str(), printBase, NULL, &zErrMsg);
+	if (rc != SQLITE_OK) {
+		fprintf(stderr, "SQL error: %s\n", zErrMsg);
+		sqlite3_free(zErrMsg);
+	}
+}
+
+
+static int countRows(void* rows, int argc, char** argv, char** azColName) {
+	int* c = (int*)rows;
+	*c = atoi(argv[0]);
+	return 0;
+}
+
+static int getData(void* rows, int argc, char** argv, char** azColName) {
+	int* c = (int*)rows;
+	*c = atoi(argv[0]);
+	return 0;
 }
 
 void dataBase::countProf() {
-	float prof = 0;
+	double prof = 0;
+
+	char* zErrMsg = 0;
+	int rows = 0;
+	int rc = sqlite3_exec(dB, "select count(*) from PRODUCTS", countRows, &rows, &zErrMsg);
+	if (rc != SQLITE_OK) {
+		fprintf(stderr, "SQL error: %s\n", zErrMsg);
+		sqlite3_free(zErrMsg);
+	}
+	else {
+		printf("count: %d\n", rows);
+	}
+	string sql;
+	for (int i = 0; i < rows; i++) {
+		sql = "SELECT PRICE,CALORIESS from PRODUCTS WHERE id = ?";
+		sqlite3_stmt* stmt;
+		
+		int rc = sqlite3_prepare_v2(dB, sql.c_str(), strlen(sql.c_str()), &stmt, NULL);
+		if (rc == SQLITE_OK)
+		{
+			sqlite3_bind_int(stmt, 1, i + 1);
+
+			rc = sqlite3_step(stmt);
+
+			double price= sqlite3_column_double(stmt, 0);
+			double calories = sqlite3_column_double(stmt, 1);
+			prof = (price + calories) / 2.0;
+
+			sqlite3_finalize(stmt);
+
+			sql = "UPDATE PRODUCTS SET PROFITABILITY = ? WHERE id = ?";
+			rc = sqlite3_prepare_v2(dB, sql.c_str(), strlen(sql.c_str()), &stmt, NULL);
+
+			sqlite3_bind_double(stmt, 1, prof);
+			sqlite3_bind_int(stmt, 2, i + 1);
+
+			rc = sqlite3_step(stmt);
+			sqlite3_finalize(stmt);
+		}
+
+	}
 
 }
 

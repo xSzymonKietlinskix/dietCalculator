@@ -38,6 +38,8 @@ void dataBaseMenu(dataBase& dB, flags &fl) {
 		dB.creatDefaultTable();
 	if (ImGui::Button("Show data", ImVec2(600, 100)))
 		fl.toggle(fl.showData);
+	if (ImGui::Button("Count Rows", ImVec2(600, 100)))
+		dB.countProf();
 		
 	if (fl.showData) {
 		ImGui::Begin("Data Base", &fl.showData, ImGuiWindowFlags_NoMove);
