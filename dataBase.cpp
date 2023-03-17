@@ -38,7 +38,8 @@ void dataBase::creatDefaultTable() {
 		"NAME     TEXT NOT NULL, "
 		"CALORIESS      FLOAT  NOT NULL, "
 		"PRICE   FLOAT  NOT NULL, "
-		"USAGE INT);";
+		"USAGE INT, "
+		"PROFITABILITY FLOAT);";
 
 	try
 	{
@@ -76,15 +77,15 @@ void dataBase::addSingleRecord(product &p) {
 		sqlite3_finalize(stmt);
 	}
 }
-static int callback(void* data, int argc, char** argv, char** azColName) {
+static int _showBase(void* data, int argc, char** argv, char** azColName) {
 	int i;
 	fprintf(stderr, "%s: ", (const char*)data);
 
-	for (i = 0; i < argc; i++) {
-		printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
-	}
-
-	printf("\n");
+	for (i = 0; i < argc; i++) 
+		ImGui::Text("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
+	
+	ImGui::Text("\n");
+	
 	return 0;
 }
 
@@ -93,6 +94,11 @@ void dataBase::showBase() {
 	sql = "SELECT * from PRODUCTS";
 	char* zErrMsg;
 	const char* data = "Callback function called";
-	int rc = sqlite3_exec(dB, sql.c_str(), callback, (void*)data, &zErrMsg);
+	int rc = sqlite3_exec(dB, sql.c_str(), _showBase, (void*)data, &zErrMsg);
+}
+
+void dataBase::countProf() {
+	float prof = 0;
+
 }
 

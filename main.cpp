@@ -37,7 +37,15 @@ void dataBaseMenu(dataBase& dB, flags &fl) {
 	if (ImGui::Button("Creat new table", ImVec2(600, 100)))
 		dB.creatDefaultTable();
 	if (ImGui::Button("Show data", ImVec2(600, 100)))
+		fl.toggle(fl.showData);
+		
+	if (fl.showData) {
+		ImGui::Begin("Data Base", &fl.showData, ImGuiWindowFlags_NoMove);
 		dB.showBase();
+		if (ImGui::Button("Close", ImVec2(600, 100)))
+			fl.toggle(fl.showData);
+		ImGui::End();
+	}
 	if (ImGui::Button("Add new record", ImVec2(600, 100))) {
 		fl.toggle(fl.butAddNewRecord);
 		cout << "clicked" << endl;
@@ -60,6 +68,7 @@ void dataBaseMenu(dataBase& dB, flags &fl) {
 			product pr(t, n, stof(c), stof(p));
 			dB.addSingleRecord(pr);
 			fl.toggle(fl.butConfirm);
+			fl.butAddNewRecord = false;
 		}
 		ImGui::End();
 	}
@@ -83,9 +92,9 @@ int main(void) {
 	//style->Colors[ImGuiCol_WindowBg] = ImVec4(255, 255, 0, 192);
 	//style->Colors[ImGuiCol_Button] = ImVec4(255, 0, 0, 192);
 	ImGuiIO& io = ImGui::GetIO();
-	io.Fonts->AddFontDefault();
-	ImFont * defFont = io.Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\Arial.ttf", 18.5f, NULL, io.Fonts->GetGlyphRangesJapanese());
-	IM_ASSERT(defFont != NULL);
+	//io.Fonts->AddFontDefault();
+	//ImFont * defFont = io.Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\Arial.ttf", 18.5f, NULL, io.Fonts->GetGlyphRangesJapanese());
+	//IM_ASSERT(defFont != NULL);
 	style->WindowRounding = 0.40;
 	
 
@@ -114,7 +123,7 @@ int main(void) {
 			if (ImGui::Button("Count diet", ImVec2(600, 100))) {
 				fl.toggle(fl.countDiet);
 			}
-			//ImGui::PopFont();
+			
 		}
 		//ImGui::PopFont();
 		
@@ -125,11 +134,12 @@ int main(void) {
 			dataBaseMenu(dB, fl);
 		if (fl.countDiet)
 			countDiet(dB, fl);
-
+		ImGui::End();
 
 		window.clear();
 		ImGui::SFML::Render(window);
 		window.display();
+		
 	}
 
 	ImGui::SFML::Shutdown();

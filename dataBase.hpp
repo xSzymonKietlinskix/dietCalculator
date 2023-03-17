@@ -4,7 +4,7 @@
 #include <fstream>
 #include "dataBase/sqlite3.h"
 #include "products.hpp"
-
+#include "imGui/imgui.h"
 #endif // !_dataBase
 
 using namespace std;
@@ -21,4 +21,5 @@ public:
 	void openBase();
 	void closeBase();
 	void showBase();
+	void countProf();
 };
