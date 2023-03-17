@@ -9,7 +9,7 @@
 #include <SFML/System/Clock.hpp>
 #include <SFML/Window/Event.hpp>
 
-
+#define defWindowFlags ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse
 using namespace std;
 
 class flags {
@@ -21,8 +21,9 @@ public:
 	bool showData;
 	bool butConfirm;
 	bool countDiet;
+	bool numOfDays;
 	void toggle(bool& stat);
-	flags() : showData(false),butDataBaseMenu(false), butAddNewRecord(false), menu(true), NewRecord(false), butConfirm(false), countDiet(false){};
+	flags() : showData(false),butDataBaseMenu(false), butAddNewRecord(false), menu(true), NewRecord(false), butConfirm(false), countDiet(false), numOfDays(false){};
 };
 
 void flags::toggle(bool& stat) {
@@ -34,7 +35,7 @@ void flags::toggle(bool& stat) {
 
 
 void dataBaseMenu(dataBase& dB, flags &fl) {
-	if (ImGui::Button("Creat new table", ImVec2(600, 100)))
+	if (ImGui::Button("Creat default table (if not exists)", ImVec2(600, 100)))
 		dB.creatDefaultTable();
 	if (ImGui::Button("Show data", ImVec2(600, 100)))
 		fl.toggle(fl.showData);
@@ -42,7 +43,8 @@ void dataBaseMenu(dataBase& dB, flags &fl) {
 		dB.countProf();
 		
 	if (fl.showData) {
-		ImGui::Begin("Data Base", &fl.showData, ImGuiWindowFlags_NoMove);
+		ImGui::SetNextWindowSize(ImVec2(1900, 900));
+		ImGui::Begin("Data Base", &fl.showData, defWindowFlags);
 		dB.showBase();
 		if (ImGui::Button("Close", ImVec2(600, 100)))
 			fl.toggle(fl.showData);
@@ -53,7 +55,8 @@ void dataBaseMenu(dataBase& dB, flags &fl) {
 		cout << "clicked" << endl;
 	}
 	if (fl.butAddNewRecord == true) {
-		ImGui::Begin("Add new record",&fl.butAddNewRecord, ImGuiWindowFlags_NoMove);
+		ImGui::SetNextWindowSize(ImVec2(1900, 900));
+		ImGui::Begin("Add new record",&fl.butAddNewRecord, defWindowFlags);
 		static char t[128] = "";
 		static char n[128] = "";
 		static char p[20] = "";
@@ -66,6 +69,9 @@ void dataBaseMenu(dataBase& dB, flags &fl) {
 			cout << t << endl << n << endl << p << endl << c << endl;;
 			fl.toggle(fl.butConfirm);
 		}
+		if (ImGui::Button("Cancel", ImVec2(600, 100)))
+			fl.toggle(fl.butAddNewRecord);
+
 		if (fl.butConfirm) {
 			product pr(t, n, stof(c), stof(p));
 			dB.addSingleRecord(pr);
@@ -77,10 +83,27 @@ void dataBaseMenu(dataBase& dB, flags &fl) {
 }
 
 void countDiet(dataBase& dB, flags& fl) {
-	;
+	ImGui::SetNextWindowSize(ImVec2(1900, 900));
+	ImGui::Begin("Count Diet", &fl.countDiet, defWindowFlags);
+	static int cal = 0;
+	ImGui::InputInt("Calories", &cal, sizeof(cal));
+
+	if (ImGui::Button("Number of days", ImVec2(600, 100)))
+		fl.toggle(fl.numOfDays);
+
+	if (fl.numOfDays) {
+		ImGui::ListBoxHeader("");
+		ImGui::ListBoxFooter();
+	}
+	if (ImGui::Button("Type of diet", ImVec2(600, 100))) {
+		fl.toggle(fl.butAddNewRecord);
+	}
+	ImGui::End();
 }
 
 int main(void) {
+	
+	
 	const char* location = "dataBase/newDataBase.db";
 	dataBase dB(location);
 	flags fl;
@@ -88,18 +111,21 @@ int main(void) {
 	sf::RenderWindow window(sf::VideoMode(2000, 1000), "Diet calculator");
 	window.setFramerateLimit(60);
 
-	ImGui::SFML::Init(window);
+	ImGui::SFML::Init(window,false);
+	
+	ImGuiIO& io = ImGui::GetIO();
+	io.Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\Arial.ttf", 24.0f);
+	ImGui::SFML::UpdateFontTexture();
+
 	ImGuiStyle* style = &ImGui::GetStyle();
 	style->FramePadding = ImVec2(4, 2);
 	//style->Colors[ImGuiCol_WindowBg] = ImVec4(255, 255, 0, 192);
 	//style->Colors[ImGuiCol_Button] = ImVec4(255, 0, 0, 192);
-	ImGuiIO& io = ImGui::GetIO();
-	//io.Fonts->AddFontDefault();
-	//ImFont * defFont = io.Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\Arial.ttf", 18.5f, NULL, io.Fonts->GetGlyphRangesJapanese());
-	//IM_ASSERT(defFont != NULL);
-	style->WindowRounding = 0.40;
 	
+	style->WindowRounding = 0.40;
 
+	
+	
 	sf::Clock deltaClock;
 	while (window.isOpen()) {
 		sf::Event event;
@@ -110,24 +136,26 @@ int main(void) {
 		}
 		
 		ImGui::SFML::Update(window, deltaClock.restart());
-
+		
 		//***menu window***//
 		//**left column**//
 		if (fl.menu) {
-
-			ImGui::Begin("Menu", &fl.menu, ImGuiWindowFlags_NoMove);
+		
+			ImGui::SetNextWindowSize(ImVec2(1900, 900));
+			ImGui::Begin(" ", &fl.menu, defWindowFlags);
+		
 			ImGui::Columns(2);
-			ImGui::SetColumnOffset(1, 630);
+			ImGui::SetColumnOffset(1, 600);
 
-			//ImGui::PushFont(defFont);
 			if (ImGui::Button("Data base menu",ImVec2(600,100)))
 				fl.toggle(fl.butDataBaseMenu);
-			if (ImGui::Button("Count diet", ImVec2(600, 100))) {
+			if (ImGui::Button("Count diet", ImVec2(600, 100))) 
 				fl.toggle(fl.countDiet);
-			}
+			if (ImGui::Button("Exit", ImVec2(600, 100))) 
+				return 0;
+			
 			
 		}
-		//ImGui::PopFont();
 		
 		//**right column**//
 
@@ -137,7 +165,8 @@ int main(void) {
 		if (fl.countDiet)
 			countDiet(dB, fl);
 		ImGui::End();
-
+		
+		
 		window.clear();
 		ImGui::SFML::Render(window);
 		window.display();
@@ -145,7 +174,6 @@ int main(void) {
 	}
 
 	ImGui::SFML::Shutdown();
-
 
 	return 0;
 }

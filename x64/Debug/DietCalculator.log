@@ -1,7 +1,3 @@
-﻿  dataBase.cpp
-C:\Users\xiii5\Desktop\Notatki_stacja\UKSW\indywidualny projekt programistyczny\dietCalculator\dataBase.cpp(66,83): warning C4267: "argument": konwersja z "size_t" do "int", możliwa utrata danych
-C:\Users\xiii5\Desktop\Notatki_stacja\UKSW\indywidualny projekt programistyczny\dietCalculator\dataBase.cpp(69,65): warning C4267: "argument": konwersja z "size_t" do "int", możliwa utrata danych
-C:\Users\xiii5\Desktop\Notatki_stacja\UKSW\indywidualny projekt programistyczny\dietCalculator\dataBase.cpp(70,67): warning C4267: "argument": konwersja z "size_t" do "int", możliwa utrata danych
-C:\Users\xiii5\Desktop\Notatki_stacja\UKSW\indywidualny projekt programistyczny\dietCalculator\dataBase.cpp(128,80): warning C4267: "argument": konwersja z "size_t" do "int", możliwa utrata danych
-C:\Users\xiii5\Desktop\Notatki_stacja\UKSW\indywidualny projekt programistyczny\dietCalculator\dataBase.cpp(139,77): warning C4267: "argument": konwersja z "size_t" do "int", możliwa utrata danych
+﻿  main.cpp
+C:\Users\xiii5\Desktop\Notatki_stacja\UKSW\indywidualny projekt programistyczny\dietCalculator\main.cpp(125,30): warning C4305: "=": obcięcie z "double" do "float"
   dietCalculator.vcxproj -> C:\Users\xiii5\Desktop\Notatki_stacja\UKSW\indywidualny projekt programistyczny\x64\Debug\dietCalculator.exe
