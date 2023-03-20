@@ -22,8 +22,9 @@ public:
 	bool butConfirm;
 	bool countDiet;
 	bool numOfDays;
+	bool updateProf;
 	void toggle(bool& stat);
-	flags() : showData(false),butDataBaseMenu(false), butAddNewRecord(false), menu(true), NewRecord(false), butConfirm(false), countDiet(false), numOfDays(false){};
+	flags() :updateProf(false), showData(false),butDataBaseMenu(false), butAddNewRecord(false), menu(true), NewRecord(false), butConfirm(false), countDiet(false), numOfDays(false){};
 };
 
 void flags::toggle(bool& stat) {
@@ -39,13 +40,18 @@ void dataBaseMenu(dataBase& dB, flags &fl) {
 		dB.creatDefaultTable();
 	if (ImGui::Button("Show data", ImVec2(600, 100)))
 		fl.toggle(fl.showData);
-	if (ImGui::Button("Count Rows", ImVec2(600, 100)))
-		dB.countProf();
+	if (ImGui::Button("Update PROFITABILITY", ImVec2(600, 100))) {
+		if (dB.countProf() == 0)
+			ImGui::Text("Done!");
+
+	}
+		
 		
 	if (fl.showData) {
 		ImGui::SetNextWindowSize(ImVec2(1900, 900));
 		ImGui::Begin("Data Base", &fl.showData, defWindowFlags);
-		dB.showBase();
+		//dB.showBase();
+		dB.countDiet(1, 1, "Nope");
 		if (ImGui::Button("Close", ImVec2(600, 100)))
 			fl.toggle(fl.showData);
 		ImGui::End();

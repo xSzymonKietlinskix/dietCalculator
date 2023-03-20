@@ -5,6 +5,7 @@
 #include "dataBase/sqlite3.h"
 #include "products.hpp"
 #include "imGui/imgui.h"
+#include <vector>
 #endif // !_dataBase
 
 using namespace std;
@@ -21,5 +22,6 @@ public:
 	void openBase();
 	void closeBase();
 	void showBase();
-	void countProf();
+	int countProf();
+	vector<int> countDiet(int _days, float _cal, string _typ);
 };

@@ -36,7 +36,7 @@ void dataBase::creatDefaultTable() {
 		"ID INTEGER PRIMARY KEY AUTOINCREMENT, "
 		"TYPE      TEXT NOT NULL, "
 		"NAME     TEXT NOT NULL, "
-		"CALORIESS      FLOAT  NOT NULL, "
+		"CALORIES      FLOAT  NOT NULL, "
 		"PRICE   FLOAT  NOT NULL, "
 		"USAGE INT, "
 		"PROFITABILITY FLOAT);";
@@ -106,7 +106,7 @@ static int getData(void* rows, int argc, char** argv, char** azColName) {
 	return 0;
 }
 
-void dataBase::countProf() {
+int dataBase::countProf() {
 	double prof = 0;
 
 	char* zErrMsg = 0;
@@ -133,7 +133,7 @@ void dataBase::countProf() {
 
 			double price= sqlite3_column_double(stmt, 0);
 			double calories = sqlite3_column_double(stmt, 1);
-			prof = (price + calories) / 2.0;
+			prof = calories/price;
 
 			sqlite3_finalize(stmt);
 
@@ -147,7 +147,25 @@ void dataBase::countProf() {
 			sqlite3_finalize(stmt);
 		}
 
-	}
 
+	}
+	return 0;
+}
+
+vector<int> dataBase::countDiet(int _days, float _cal, string _typ) {
+	float calBf = 0.35 * _cal;
+	float calLun = 0.5 * _cal;
+	float calDin = 0.15 * _cal;
+	float cost = 0;
+	string sql = "SELECT * from PRODUCTS WHERE CALORIESS < 100 ORDER BY PROFITABILITY DESC ";
+	char* zErrMsg = 0;
+	int rc = sqlite3_exec(dB, sql.c_str(), printBase, NULL, &zErrMsg);
+	
+	/*while (cal > 0) {
+
+	}*/
+	
+	vector<int> result;
+	return result;
 }
 
