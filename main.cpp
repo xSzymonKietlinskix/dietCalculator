@@ -22,9 +22,12 @@ public:
 	bool butConfirm;
 	bool countDiet;
 	bool numOfDays;
+	bool selectType;
 	bool updateProf;
+	bool confirmCountDiet;
 	void toggle(bool& stat);
-	flags() :updateProf(false), showData(false),butDataBaseMenu(false), butAddNewRecord(false), menu(true), NewRecord(false), butConfirm(false), countDiet(false), numOfDays(false){};
+	flags() :updateProf(false), showData(false),butDataBaseMenu(false), butAddNewRecord(false), menu(true), NewRecord(false), butConfirm(false), countDiet(false),
+		numOfDays(false), selectType(false), confirmCountDiet(false){};
 };
 
 void flags::toggle(bool& stat) {
@@ -40,11 +43,10 @@ void dataBaseMenu(dataBase& dB, flags &fl) {
 		dB.creatDefaultTable();
 	if (ImGui::Button("Show data", ImVec2(600, 100)))
 		fl.toggle(fl.showData);
-	if (ImGui::Button("Update PROFITABILITY", ImVec2(600, 100))) {
-		if (dB.countProf() == 0)
-			ImGui::Text("Done!");
-
-	}
+	if (ImGui::Button("Update PROFITABILITY", ImVec2(600, 100)))
+		dB.countProf();
+	if (ImGui::Button("Reset Usage", ImVec2(600, 100)))
+		dB.resetUsage();
 		
 		
 	if (fl.showData) {
@@ -92,6 +94,9 @@ void countDiet(dataBase& dB, flags& fl) {
 	ImGui::SetNextWindowSize(ImVec2(1900, 900));
 	ImGui::Begin("Count Diet", &fl.countDiet, defWindowFlags);
 	static int cal = 0;
+	static string type;
+	static int nOfDays = 0;
+	bool nullBool = false;
 	ImGui::InputInt("Calories", &cal, sizeof(cal));
 
 	if (ImGui::Button("Number of days", ImVec2(600, 100)))
@@ -99,10 +104,44 @@ void countDiet(dataBase& dB, flags& fl) {
 
 	if (fl.numOfDays) {
 		ImGui::ListBoxHeader("");
+		if (ImGui::Selectable("1", nullBool))
+			nOfDays = 1;
+		if (ImGui::Selectable("3", nullBool))
+			nOfDays = 3;
+		if (ImGui::Selectable("7", nullBool))
+			nOfDays = 7;
 		ImGui::ListBoxFooter();
 	}
-	if (ImGui::Button("Type of diet", ImVec2(600, 100))) {
-		fl.toggle(fl.butAddNewRecord);
+
+	if (ImGui::Button("Type of diet", ImVec2(600, 100)))
+		fl.toggle(fl.selectType);
+		
+	if (fl.selectType) {
+		ImGui::ListBoxHeader("Type of diet");
+		if (ImGui::Selectable("Vegetarian", nullBool))
+			type = "vegetarian";
+		ImGui::ListBoxFooter();;
+	}
+	
+	if (ImGui::Button("Confirm", ImVec2(600, 100)))
+		fl.toggle(fl.confirmCountDiet);
+	if (fl.confirmCountDiet) {
+		vector<int> products = dB.countDiet(nOfDays, cal, type);
+		cout << "Breakfast:" << endl << endl;
+		for (int i : products) {
+			switch (i) {
+			case -99:
+				cout << "Lunch:" << endl << endl;
+				break;
+			case -98:
+				cout << "Dinner:" << endl <<endl;
+				break;
+			default:
+				product result = dB.getProduct(i);
+				result.showInConsole();
+			}
+		}
+		fl.toggle(fl.confirmCountDiet);
 	}
 	ImGui::End();
 }

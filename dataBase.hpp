@@ -24,4 +24,6 @@ public:
 	void showBase();
 	int countProf();
 	vector<int> countDiet(int _days, float _cal, string _typ);
+	void resetUsage();
+	product getProduct(int id);
 };
