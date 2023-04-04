@@ -39,6 +39,7 @@ void dataBase::creatDefaultTable() {
 		"CALORIES      FLOAT  NOT NULL, "
 		"PRICE   FLOAT  NOT NULL, "
 		"USAGE INT DEFAULT 0, "
+		"PORTION FLOAT DEFAULT 1, "
 		"PROFITABILITY FLOAT);";
 
 	try
@@ -164,8 +165,8 @@ vector<int> dataBase::countDiet(int _days, float _cal, string _typ) {
 
 		if (_typ == "vegetarian") {
 			//breakfast
-			while (calBf > 0) {
-				sql = "SELECT id, calories, price, usage from PRODUCTS WHERE NOT type = 'meat' AND CALORIES < ? AND USAGE = 0 ORDER BY PROFITABILITY DESC";
+			while (calBf > 10) {
+				sql = "SELECT id, calories, price, usage, portion from PRODUCTS WHERE NOT type = 'meat' AND CALORIES < ? AND USAGE = 0 ORDER BY PROFITABILITY DESC";
 				sqlite3_stmt* stmt;
 				int rc = sqlite3_prepare_v2(dB, sql.c_str(), strlen(sql.c_str()), &stmt, NULL);
 				if (rc == SQLITE_OK)
@@ -177,10 +178,11 @@ vector<int> dataBase::countDiet(int _days, float _cal, string _typ) {
 					int usage = sqlite3_column_int(stmt, 3);
 					double price = sqlite3_column_double(stmt, 2);
 					double calories = sqlite3_column_double(stmt, 1);
+					double portion = sqlite3_column_double(stmt, 4);
 					result.push_back(id);
-					cost += price;
-					calTotal += calories;
-					calBf -= calories;
+					cost += portion*price;
+					calTotal += portion*calories;
+					calBf -= portion*calories;
 					sqlite3_finalize(stmt);
 					sql = "UPDATE PRODUCTS SET USAGE = ? WHERE id = ?";
 					rc = sqlite3_prepare_v2(dB, sql.c_str(), strlen(sql.c_str()), &stmt, NULL);
@@ -190,14 +192,12 @@ vector<int> dataBase::countDiet(int _days, float _cal, string _typ) {
 
 					rc = sqlite3_step(stmt);
 					sqlite3_finalize(stmt);
-					//cout << "Cena: "<< cost << "kalorie: " << calTotal << endl;
 				}
 			}
 			result.push_back(-99);
 			//lunch
-			while (calLun > 0) {
-
-				sql = "SELECT id, calories, price, usage from PRODUCTS WHERE NOT type = 'meat' AND CALORIES < ? AND USAGE = 0 ORDER BY PROFITABILITY DESC";
+			while (calLun > 10) {
+				sql = "SELECT id, calories, price, usage, portion from PRODUCTS WHERE NOT type = 'meat' AND CALORIES < ? AND USAGE = 0 ORDER BY PROFITABILITY DESC";
 				sqlite3_stmt* stmt;
 				int rc = sqlite3_prepare_v2(dB, sql.c_str(), strlen(sql.c_str()), &stmt, NULL);
 				if (rc == SQLITE_OK)
@@ -209,10 +209,11 @@ vector<int> dataBase::countDiet(int _days, float _cal, string _typ) {
 					int usage = sqlite3_column_int(stmt, 3);
 					double price = sqlite3_column_double(stmt, 2);
 					double calories = sqlite3_column_double(stmt, 1);
+					double portion = sqlite3_column_double(stmt, 4);
 					result.push_back(id);
-					cost += price;
-					calTotal += calories;
-					calLun -= calories;
+					cost += portion * price;
+					calTotal += portion * calories;
+					calLun -= portion * calories;
 					sqlite3_finalize(stmt);
 					sql = "UPDATE PRODUCTS SET USAGE = ? WHERE id = ?";
 					rc = sqlite3_prepare_v2(dB, sql.c_str(), strlen(sql.c_str()), &stmt, NULL);
@@ -222,10 +223,39 @@ vector<int> dataBase::countDiet(int _days, float _cal, string _typ) {
 
 					rc = sqlite3_step(stmt);
 					sqlite3_finalize(stmt);
-					//cout << "Cena: " << cost << "kalorie: " << calTotal << endl;
 				}
 			}
 			result.push_back(-98);
+			//diner
+			while (calDin > 10) {
+				sql = "SELECT id, calories, price, usage, portion from PRODUCTS WHERE NOT type = 'meat' AND CALORIES < ? AND USAGE = 0 ORDER BY PROFITABILITY DESC";
+				sqlite3_stmt* stmt;
+				int rc = sqlite3_prepare_v2(dB, sql.c_str(), strlen(sql.c_str()), &stmt, NULL);
+				if (rc == SQLITE_OK)
+				{
+					sqlite3_bind_int(stmt, 1, 0.5 * _cal);
+					rc = sqlite3_step(stmt);
+
+					int id = sqlite3_column_int(stmt, 0);
+					int usage = sqlite3_column_int(stmt, 3);
+					double price = sqlite3_column_double(stmt, 2);
+					double calories = sqlite3_column_double(stmt, 1);
+					double portion = sqlite3_column_double(stmt, 4);
+					result.push_back(id);
+					cost += portion * price;
+					calTotal += portion * calories;
+					calDin -= portion * calories;
+					sqlite3_finalize(stmt);
+					sql = "UPDATE PRODUCTS SET USAGE = ? WHERE id = ?";
+					rc = sqlite3_prepare_v2(dB, sql.c_str(), strlen(sql.c_str()), &stmt, NULL);
+
+					sqlite3_bind_double(stmt, 1, ++usage);
+					sqlite3_bind_int(stmt, 2, id);
+
+					rc = sqlite3_step(stmt);
+					sqlite3_finalize(stmt);
+				}
+			}
 		}
 			else if (_typ == "vegan") {
 				;
@@ -247,7 +277,7 @@ void dataBase::resetUsage() {
 }
 
 product dataBase::getProduct(int id) {
-	string sql = "SELECT calories, price, usage, name, type from PRODUCTS WHERE id = ?";
+	string sql = "SELECT calories, price, usage, name, type, portion from PRODUCTS WHERE id = ?";
 	sqlite3_stmt* stmt;
 	product result;
 	int rc = sqlite3_prepare_v2(dB, sql.c_str(), strlen(sql.c_str()), &stmt, NULL);
@@ -255,9 +285,9 @@ product dataBase::getProduct(int id) {
 	{
 		sqlite3_bind_int(stmt, 1, id);
 		rc = sqlite3_step(stmt);
-		
-		result.calories = sqlite3_column_double(stmt, 0);
-		result.price = sqlite3_column_double(stmt, 1);
+		result.portion = sqlite3_column_double(stmt, 5);
+		result.calories = sqlite3_column_double(stmt, 0) * result.portion;
+		result.price = sqlite3_column_double(stmt, 1) * result.portion;
 		result.usage = sqlite3_column_int(stmt, 2);
 		const unsigned char *name = sqlite3_column_text(stmt, 3);
 		string _name(name, name + sizeof(name));

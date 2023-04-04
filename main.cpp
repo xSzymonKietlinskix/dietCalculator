@@ -104,7 +104,7 @@ void countDiet(dataBase& dB, flags& fl) {
 		fl.toggle(fl.numOfDays);
 
 	if (fl.numOfDays) {
-		ImGui::ListBoxHeader("");
+		ImGui::ListBoxHeader(".");
 		if (ImGui::Selectable("1", nullBool))
 			nOfDays = 1;
 		if (ImGui::Selectable("3", nullBool))
@@ -157,13 +157,16 @@ void countDiet(dataBase& dB, flags& fl) {
 				ImGui::Text(to_string(result.price).c_str());
 				ImGui::SameLine();
 				ImGui::Text(" zl");
+				ImGui::Text(to_string(100.0* result.portion).c_str());
+				ImGui::SameLine();
+				ImGui::Text(" g");
 				ImGui::Text("\n");
 
 				//result.showInConsole();
 			}
 		}
 		//fl.toggle(fl.confirmCountDiet);
-		ImGui::End();
+		//ImGui::End();
 	}
 	ImGui::End();
 }
