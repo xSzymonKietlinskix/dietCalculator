@@ -16,6 +16,8 @@ class dataBase{
 	sqlite3* dB;
 public:
 	dataBase(const char* loc);
+	double totalCost;
+	double totalCalories;
 	void creatDefaultTable();
 	void addSingleRecord(product &p);
 	void changeLocation(const char* loc);

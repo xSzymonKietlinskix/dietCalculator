@@ -190,7 +190,7 @@ vector<int> dataBase::countDiet(int _days, float _cal, string _typ) {
 
 					rc = sqlite3_step(stmt);
 					sqlite3_finalize(stmt);
-					cout << "Cena: "<< cost << "kalorie: " << calTotal << endl;
+					//cout << "Cena: "<< cost << "kalorie: " << calTotal << endl;
 				}
 			}
 			result.push_back(-99);
@@ -222,7 +222,7 @@ vector<int> dataBase::countDiet(int _days, float _cal, string _typ) {
 
 					rc = sqlite3_step(stmt);
 					sqlite3_finalize(stmt);
-					cout << "Cena: " << cost << "kalorie: " << calTotal << endl;
+					//cout << "Cena: " << cost << "kalorie: " << calTotal << endl;
 				}
 			}
 			result.push_back(-98);
@@ -233,7 +233,8 @@ vector<int> dataBase::countDiet(int _days, float _cal, string _typ) {
 			else if (_typ == "standard") {
 				;
 			}
-	
+		totalCalories = calTotal;
+		totalCost = cost;
 	
 	return result;
 }

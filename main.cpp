@@ -25,9 +25,10 @@ public:
 	bool selectType;
 	bool updateProf;
 	bool confirmCountDiet;
+	bool result;
 	void toggle(bool& stat);
 	flags() :updateProf(false), showData(false),butDataBaseMenu(false), butAddNewRecord(false), menu(true), NewRecord(false), butConfirm(false), countDiet(false),
-		numOfDays(false), selectType(false), confirmCountDiet(false){};
+		numOfDays(false), selectType(false), confirmCountDiet(false), result(true){};
 };
 
 void flags::toggle(bool& stat) {
@@ -127,21 +128,42 @@ void countDiet(dataBase& dB, flags& fl) {
 		fl.toggle(fl.confirmCountDiet);
 	if (fl.confirmCountDiet) {
 		vector<int> products = dB.countDiet(nOfDays, cal, type);
-		cout << "Breakfast:" << endl << endl;
+		ImGui::End();
+		ImGui::SetNextWindowSize(ImVec2(1900, 900));
+		ImGui::Begin("Results", &fl.confirmCountDiet, defWindowFlags);
+		ImGui::Text("Total cost of the day: ");
+		ImGui::SameLine();
+		ImGui::Text(to_string(dB.totalCost).c_str());
+		ImGui::Text("Total calories of the day: ");
+		ImGui::SameLine();
+		ImGui::Text(to_string(dB.totalCalories).c_str());
+
+		ImGui::Text("\nBreakfast: \n \n");
 		for (int i : products) {
 			switch (i) {
 			case -99:
-				cout << "Lunch:" << endl << endl;
+				ImGui::Text("Lunch: \n \n");
 				break;
 			case -98:
-				cout << "Dinner:" << endl <<endl;
+				ImGui::Text("Dinner: \n \n");
 				break;
 			default:
 				product result = dB.getProduct(i);
-				result.showInConsole();
+				ImGui::Text(result.type.c_str());
+				ImGui::Text(result.name.c_str());
+				ImGui::Text(to_string(result.calories).c_str());
+				ImGui::SameLine();
+				ImGui::Text(" kcal");
+				ImGui::Text(to_string(result.price).c_str());
+				ImGui::SameLine();
+				ImGui::Text(" zl");
+				ImGui::Text("\n");
+
+				//result.showInConsole();
 			}
 		}
-		fl.toggle(fl.confirmCountDiet);
+		//fl.toggle(fl.confirmCountDiet);
+		ImGui::End();
 	}
 	ImGui::End();
 }

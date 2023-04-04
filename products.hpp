@@ -18,4 +18,6 @@ public:
 	product(string t, string n, float c, float p);
 	product() : type("none"), name("none"), calories(0), price(0), usage(0) {};
 	void showInConsole();
+	string getDataAsString();
+	const char * getDataAsChar();
 };
