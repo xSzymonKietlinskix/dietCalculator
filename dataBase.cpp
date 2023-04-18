@@ -153,108 +153,71 @@ int dataBase::countProf() {
 	return 0;
 }
 
+int dataBase::getDataForCounting(string& sql, float & _cal, vector<int>& result, float& cost, float& calTotal, float& calDish, float partOfCal) {
+	sqlite3_stmt* stmt;
+	int rc = sqlite3_prepare_v2(dB, sql.c_str(), strlen(sql.c_str()), &stmt, NULL);
+
+	
+
+	if (rc == SQLITE_OK)
+	{
+		sqlite3_bind_int(stmt, 1, partOfCal * _cal);
+		rc = sqlite3_step(stmt);
+
+		if (sqlite3_column_type(stmt, 0) == SQLITE_NULL) // result is NULL
+			return -1;
+
+		int id = sqlite3_column_int(stmt, 0);
+		int usage = sqlite3_column_int(stmt, 3);
+		double price = sqlite3_column_double(stmt, 2);
+		double calories = sqlite3_column_double(stmt, 1);
+		double portion = sqlite3_column_double(stmt, 4);
+		result.push_back(id);
+		cost += portion * price;
+		calTotal += portion * calories;
+		calDish -= portion * calories;
+		sqlite3_finalize(stmt);
+		sql = "UPDATE PRODUCTS SET USAGE = ? WHERE id = ?";
+		rc = sqlite3_prepare_v2(dB, sql.c_str(), strlen(sql.c_str()), &stmt, NULL);
+
+		sqlite3_bind_double(stmt, 1, ++usage);
+		sqlite3_bind_int(stmt, 2, id);
+
+		rc = sqlite3_step(stmt);
+		sqlite3_finalize(stmt);
+	}
+	return 0;
+}
+
 vector<int> dataBase::countDiet(int _days, float _cal, string _typ) {
 	resetUsage();
+	countProf();
 	float calBf = 0.35 * _cal;
 	float calLun = 0.5 * _cal;
 	float calDin = 0.15 * _cal;
 	float cost = 0;
-	double calTotal = 0;
+	float calTotal = 0;
 	string sql;
 	vector<int> result;
 
 		if (_typ == "vegetarian") {
 			//breakfast
 			while (calBf > 10) {
-				sql = "SELECT id, calories, price, usage, portion from PRODUCTS WHERE NOT type = 'meat' AND CALORIES < ? AND USAGE = 0 ORDER BY PROFITABILITY DESC";
-				sqlite3_stmt* stmt;
-				int rc = sqlite3_prepare_v2(dB, sql.c_str(), strlen(sql.c_str()), &stmt, NULL);
-				if (rc == SQLITE_OK)
-				{
-					sqlite3_bind_int(stmt, 1, 0.5 * _cal);
-					rc = sqlite3_step(stmt);
-
-					int id = sqlite3_column_int(stmt, 0);
-					int usage = sqlite3_column_int(stmt, 3);
-					double price = sqlite3_column_double(stmt, 2);
-					double calories = sqlite3_column_double(stmt, 1);
-					double portion = sqlite3_column_double(stmt, 4);
-					result.push_back(id);
-					cost += portion*price;
-					calTotal += portion*calories;
-					calBf -= portion*calories;
-					sqlite3_finalize(stmt);
-					sql = "UPDATE PRODUCTS SET USAGE = ? WHERE id = ?";
-					rc = sqlite3_prepare_v2(dB, sql.c_str(), strlen(sql.c_str()), &stmt, NULL);
-
-					sqlite3_bind_double(stmt, 1, ++usage);
-					sqlite3_bind_int(stmt, 2, id);
-
-					rc = sqlite3_step(stmt);
-					sqlite3_finalize(stmt);
-				}
+				sql = "SELECT id, calories, price, usage, portion from PRODUCTS WHERE NOT type = 'meat' AND CALORIES < ? ORDER BY USAGE,PROFITABILITY DESC";
+				getDataForCounting(sql, _cal, result, cost, calTotal, calBf, 0.5);
 			}
 			result.push_back(-99);
-			//lunch
+			//lunch //test
 			while (calLun > 10) {
-				sql = "SELECT id, calories, price, usage, portion from PRODUCTS WHERE NOT type = 'meat' AND CALORIES < ? AND USAGE = 0 ORDER BY PROFITABILITY DESC";
-				sqlite3_stmt* stmt;
-				int rc = sqlite3_prepare_v2(dB, sql.c_str(), strlen(sql.c_str()), &stmt, NULL);
-				if (rc == SQLITE_OK)
-				{
-					sqlite3_bind_int(stmt, 1, 0.5 * _cal);
-					rc = sqlite3_step(stmt);
+				sql = "SELECT id, calories, price, usage, portion from PRODUCTS WHERE NOT type = 'meat' AND CALORIES < ? ORDER BY USAGE,PROFITABILITY DESC";
 
-					int id = sqlite3_column_int(stmt, 0);
-					int usage = sqlite3_column_int(stmt, 3);
-					double price = sqlite3_column_double(stmt, 2);
-					double calories = sqlite3_column_double(stmt, 1);
-					double portion = sqlite3_column_double(stmt, 4);
-					result.push_back(id);
-					cost += portion * price;
-					calTotal += portion * calories;
-					calLun -= portion * calories;
-					sqlite3_finalize(stmt);
-					sql = "UPDATE PRODUCTS SET USAGE = ? WHERE id = ?";
-					rc = sqlite3_prepare_v2(dB, sql.c_str(), strlen(sql.c_str()), &stmt, NULL);
-
-					sqlite3_bind_double(stmt, 1, ++usage);
-					sqlite3_bind_int(stmt, 2, id);
-
-					rc = sqlite3_step(stmt);
-					sqlite3_finalize(stmt);
-				}
+				getDataForCounting(sql, _cal, result, cost, calTotal, calLun, 0.5);
 			}
 			result.push_back(-98);
 			//diner
 			while (calDin > 10) {
-				sql = "SELECT id, calories, price, usage, portion from PRODUCTS WHERE NOT type = 'meat' AND CALORIES < ? AND USAGE = 0 ORDER BY PROFITABILITY DESC";
-				sqlite3_stmt* stmt;
-				int rc = sqlite3_prepare_v2(dB, sql.c_str(), strlen(sql.c_str()), &stmt, NULL);
-				if (rc == SQLITE_OK)
-				{
-					sqlite3_bind_int(stmt, 1, 0.5 * _cal);
-					rc = sqlite3_step(stmt);
-
-					int id = sqlite3_column_int(stmt, 0);
-					int usage = sqlite3_column_int(stmt, 3);
-					double price = sqlite3_column_double(stmt, 2);
-					double calories = sqlite3_column_double(stmt, 1);
-					double portion = sqlite3_column_double(stmt, 4);
-					result.push_back(id);
-					cost += portion * price;
-					calTotal += portion * calories;
-					calDin -= portion * calories;
-					sqlite3_finalize(stmt);
-					sql = "UPDATE PRODUCTS SET USAGE = ? WHERE id = ?";
-					rc = sqlite3_prepare_v2(dB, sql.c_str(), strlen(sql.c_str()), &stmt, NULL);
-
-					sqlite3_bind_double(stmt, 1, ++usage);
-					sqlite3_bind_int(stmt, 2, id);
-
-					rc = sqlite3_step(stmt);
-					sqlite3_finalize(stmt);
-				}
+				sql = "SELECT id, calories, price, usage, portion from PRODUCTS WHERE NOT type = 'meat' AND CALORIES < ? ORDER BY USAGE,PROFITABILITY DESC";
+				getDataForCounting(sql, _cal, result, cost, calTotal, calDin, 0.5);
 			}
 		}
 			else if (_typ == "vegan") {
