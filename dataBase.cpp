@@ -153,15 +153,40 @@ int dataBase::countProf() {
 	return 0;
 }
 
-int dataBase::getDataForCounting(string& sql, float & _cal, vector<int>& result, float& cost, float& calTotal, float& calDish, float partOfCal) {
+string chooseCategory(string _type, int& i, int dish) {
+	if (_type == "standard") {
+		switch (i)
+		{
+		case 0:
+			return "meat";
+			break;
+		case 1:
+			return "diary";
+			break;
+		case 3:
+			return "dry";
+			break;
+		default:
+			return "vegetable";
+			break;
+		}
+	}
+	return "dry";
+}
+
+int dataBase::getDataForCounting(string& sql, float & _cal, vector<int>& result, float& cost, float& calTotal, float& calDish, float partOfCal, string _type, int &i, int dish) {
 	sqlite3_stmt* stmt;
 	int rc = sqlite3_prepare_v2(dB, sql.c_str(), strlen(sql.c_str()), &stmt, NULL);
-
 	
+	string category = chooseCategory(_type, i, dish);
 
 	if (rc == SQLITE_OK)
 	{
-		sqlite3_bind_int(stmt, 1, partOfCal * _cal);
+		if (calDish < 50)
+			partOfCal = 2;
+		sqlite3_bind_int(stmt, 1, partOfCal * calDish);
+		sqlite3_bind_text(stmt, 2, category.c_str(),category.length(), SQLITE_STATIC);
+		cout << dish << endl;
 		rc = sqlite3_step(stmt);
 
 		if (sqlite3_column_type(stmt, 0) == SQLITE_NULL) // result is NULL
@@ -199,33 +224,75 @@ vector<int> dataBase::countDiet(int _days, float _cal, string _typ) {
 	float calTotal = 0;
 	string sql;
 	vector<int> result;
+	bool firstRun = true;
 
-		if (_typ == "vegetarian") {
-			//breakfast
-			while (calBf > 10) {
-				sql = "SELECT id, calories, price, usage, portion from PRODUCTS WHERE NOT type = 'meat' AND CALORIES < ? ORDER BY USAGE,PROFITABILITY DESC";
-				getDataForCounting(sql, _cal, result, cost, calTotal, calBf, 0.5);
+		//if (_typ == "vegetarian") {
+		//	//breakfast
+		//	while (calBf > 10) {
+		//		sql = "SELECT id, calories, price, usage, portion from PRODUCTS WHERE NOT type = 'meat' AND CALORIES < ? ORDER BY USAGE,PROFITABILITY DESC";
+		//		getDataForCounting(sql, _cal, result, cost, calTotal, calBf, 1);
+		//	}
+		//	result.push_back(-99);
+		//	//lunch 
+		//	while (calLun > 10) {
+		//		sql = "SELECT id, calories, price, usage, portion from PRODUCTS WHERE NOT type = 'meat' AND CALORIES < ? ORDER BY USAGE,PROFITABILITY DESC";
+
+		//		getDataForCounting(sql, _cal, result, cost, calTotal, calLun, 1);
+		//	}
+		//	result.push_back(-98);
+		//	//diner
+		//	while (calDin > 10) {
+		//		sql = "SELECT id, calories, price, usage, portion from PRODUCTS WHERE NOT type = 'meat' AND CALORIES < ? ORDER BY USAGE,PROFITABILITY DESC";
+		//		getDataForCounting(sql, _cal, result, cost, calTotal, calDin, 1);
+		//	}
+		//}
+
+
+		//else if (_typ == "vegan") {
+		//	//breakfast
+		//	while (calBf > 10) {
+		//		sql = "SELECT id, calories, price, usage, portion from PRODUCTS WHERE NOT type = 'meat' AND NOT type = 'diary' AND CALORIES < ? ORDER BY USAGE,PROFITABILITY DESC";
+		//		getDataForCounting(sql, _cal, result, cost, calTotal, calBf, 1);
+		//	}
+		//	result.push_back(-99);
+		//	//lunch 
+		//	while (calLun > 10) {
+		//		sql = "SELECT id, calories, price, usage, portion from PRODUCTS WHERE NOT type = 'meat' AND NOT type = 'diary' AND CALORIES < ? ORDER BY USAGE,PROFITABILITY DESC";
+
+		//		getDataForCounting(sql, _cal, result, cost, calTotal, calLun, 1);
+		//	}
+		//	result.push_back(-98);
+		//	//diner
+		//	while (calDin > 10) {
+		//		sql = "SELECT id, calories, price, usage, portion from PRODUCTS WHERE NOT type = 'meat' AND NOT type = 'diary' AND CALORIES < ? ORDER BY USAGE,PROFITABILITY DESC";
+		//		getDataForCounting(sql, _cal, result, cost, calTotal, calDin, 1);
+		//	}
+		//}
+	if (_typ == "none")
+		;
+
+		else if (_typ == "standard") {
+		//breakfast
+			for (int i = 0; calBf > 10; i++) {
+				sql = "SELECT id, calories, price, usage, portion from PRODUCTS WHERE CALORIES < ? AND type = ? ORDER BY USAGE,PROFITABILITY DESC";
+				getDataForCounting(sql, _cal, result, cost, calTotal, calBf, 1, _typ, i, 0);
 			}
 			result.push_back(-99);
-			//lunch //test
-			while (calLun > 10) {
-				sql = "SELECT id, calories, price, usage, portion from PRODUCTS WHERE NOT type = 'meat' AND CALORIES < ? ORDER BY USAGE,PROFITABILITY DESC";
-
-				getDataForCounting(sql, _cal, result, cost, calTotal, calLun, 0.5);
+			//lunch 
+			for (int i = 0; calLun > 10; i++) {
+				sql = "SELECT id, calories, price, usage, portion from PRODUCTS WHERE CALORIES < ? AND type = ? ORDER BY USAGE,PROFITABILITY DESC";
+				getDataForCounting(sql, _cal, result, cost, calTotal, calBf, 1, _typ, i, 1);
 			}
 			result.push_back(-98);
 			//diner
-			while (calDin > 10) {
-				sql = "SELECT id, calories, price, usage, portion from PRODUCTS WHERE NOT type = 'meat' AND CALORIES < ? ORDER BY USAGE,PROFITABILITY DESC";
-				getDataForCounting(sql, _cal, result, cost, calTotal, calDin, 0.5);
+			for (int i = 0; calDin > 10; i++) {
+				sql = "SELECT id, calories, price, usage, portion from PRODUCTS WHERE CALORIES < ? AND type = ? ORDER BY USAGE,PROFITABILITY DESC";
+				getDataForCounting(sql, _cal, result, cost, calTotal, calBf, 1, _typ, i, 2);
 			}
+		
 		}
-			else if (_typ == "vegan") {
-				;
-			}
-			else if (_typ == "standard") {
-				;
-			}
+		
+		
 		totalCalories = calTotal;
 		totalCost = cost;
 	

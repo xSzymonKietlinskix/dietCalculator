@@ -53,7 +53,7 @@ void dataBaseMenu(dataBase& dB, flags &fl) {
 	if (fl.showData) {
 		ImGui::SetNextWindowSize(ImVec2(1900, 900));
 		ImGui::Begin("Data Base", &fl.showData, defWindowFlags);
-		//dB.showBase();
+		dB.showBase();
 		dB.countDiet(1, 1, "Nope");
 		if (ImGui::Button("Close", ImVec2(600, 100)))
 			fl.toggle(fl.showData);
@@ -121,6 +121,8 @@ void countDiet(dataBase& dB, flags& fl) {
 		ImGui::ListBoxHeader("Type of diet");
 		if (ImGui::Selectable("Vegetarian", nullBool))
 			type = "vegetarian";
+		if (ImGui::Selectable("Standard", nullBool))
+			type = "standard";
 		ImGui::ListBoxFooter();;
 	}
 	
@@ -131,12 +133,8 @@ void countDiet(dataBase& dB, flags& fl) {
 		ImGui::End();
 		ImGui::SetNextWindowSize(ImVec2(1900, 900));
 		ImGui::Begin("Results", &fl.confirmCountDiet, defWindowFlags);
-		ImGui::Text("Total cost of the day: ");
-		ImGui::SameLine();
-		ImGui::Text(to_string(dB.totalCost).c_str());
-		ImGui::Text("Total calories of the day: ");
-		ImGui::SameLine();
-		ImGui::Text(to_string(dB.totalCalories).c_str());
+		ImGui::Text("Total cost of the day: %.2f zl" , dB.totalCost);
+		ImGui::Text("Total calories of the day: %.2f kcal", dB.totalCalories);
 
 		ImGui::Text("\nBreakfast: \n \n");
 		for (int i : products) {
@@ -151,15 +149,9 @@ void countDiet(dataBase& dB, flags& fl) {
 				product result = dB.getProduct(i);
 				ImGui::Text(result.type.c_str());
 				ImGui::Text(result.name.c_str());
-				ImGui::Text(to_string(result.calories).c_str());
-				ImGui::SameLine();
-				ImGui::Text(" kcal");
-				ImGui::Text(to_string(result.price).c_str());
-				ImGui::SameLine();
-				ImGui::Text(" zl");
-				ImGui::Text(to_string(100.0* result.portion).c_str());
-				ImGui::SameLine();
-				ImGui::Text(" g");
+				ImGui::Text("%.2f kcal", result.calories);
+				ImGui::Text("%.2f zl", result.price);
+				ImGui::Text("%.2f g", result.portion * 100.0);
 				ImGui::Text("\n");
 
 				//result.showInConsole();

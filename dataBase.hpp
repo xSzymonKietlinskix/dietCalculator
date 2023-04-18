@@ -14,7 +14,7 @@ class dataBase{
 	const char* location;
 	bool isOpen;
 	sqlite3* dB;
-	int getDataForCounting(string& sql, float& _cal,vector<int>& result, float& cost, float& calTotal, float& calDish, float partOfCal);
+	int getDataForCounting(string& sql, float& _cal,vector<int>& result, float& cost, float& calTotal, float& calDish, float partOfCal, string _type, int& i, int dish);
 public:
 	dataBase(const char* loc);
 	double totalCost;
