@@ -91,6 +91,31 @@ void dataBaseMenu(dataBase& dB, flags &fl) {
 	}
 }
 
+void printDiet(vector<int> &products, dataBase &dB) {
+	ImGui::Text("Cost of the day: %.2f zl", dB.totalCost);
+	ImGui::Text("Calories of the day: %.2f kcal", dB.totalCalories);
+
+	ImGui::Text("\nBreakfast: \n \n");
+	for (int i : products) {
+		switch (i) {
+		case -99:
+			ImGui::Text("Lunch: \n \n");
+			break;
+		case -98:
+			ImGui::Text("Dinner: \n \n");
+			break;
+		default:
+			product result = dB.getProduct(i);
+			ImGui::Text(result.type.c_str());
+			ImGui::Text(result.name.c_str());
+			ImGui::Text("%.2f kcal", result.calories);
+			ImGui::Text("%.2f zl", result.price);
+			ImGui::Text("%.2f g", result.portion * 100.0);
+			ImGui::Text("\n");
+		}
+	}
+}
+
 void countDiet(dataBase& dB, flags& fl) {
 	ImGui::SetNextWindowSize(ImVec2(1900, 900));
 	ImGui::Begin("Count Diet", &fl.countDiet, defWindowFlags);
@@ -129,37 +154,25 @@ void countDiet(dataBase& dB, flags& fl) {
 	if (ImGui::Button("Confirm", ImVec2(600, 100)))
 		fl.toggle(fl.confirmCountDiet);
 	if (fl.confirmCountDiet) {
+		dB.resetUsage();
+		dB.countProf();
 		vector<int> products = dB.countDiet(nOfDays, cal, type);
+		
+
 		ImGui::End();
 		ImGui::SetNextWindowSize(ImVec2(1900, 900));
 		ImGui::Begin("Results", &fl.confirmCountDiet, defWindowFlags);
-		ImGui::Text("Total cost of the day: %.2f zl" , dB.totalCost);
-		ImGui::Text("Total calories of the day: %.2f kcal", dB.totalCalories);
-
-		ImGui::Text("\nBreakfast: \n \n");
-		for (int i : products) {
-			switch (i) {
-			case -99:
-				ImGui::Text("Lunch: \n \n");
-				break;
-			case -98:
-				ImGui::Text("Dinner: \n \n");
-				break;
-			default:
-				product result = dB.getProduct(i);
-				ImGui::Text(result.type.c_str());
-				ImGui::Text(result.name.c_str());
-				ImGui::Text("%.2f kcal", result.calories);
-				ImGui::Text("%.2f zl", result.price);
-				ImGui::Text("%.2f g", result.portion * 100.0);
-				ImGui::Text("\n");
-
-				//result.showInConsole();
+		ImGui::Columns(nOfDays);
+		printDiet(products, dB);
+		if (nOfDays != 1) {
+			for (int j = 0; j < nOfDays-1; j++) {
+				products = dB.countDiet(nOfDays, cal, type);
+				ImGui::NextColumn();
+				printDiet(products, dB);
 			}
 		}
-		//fl.toggle(fl.confirmCountDiet);
-		//ImGui::End();
 	}
+	
 	ImGui::End();
 }
 
