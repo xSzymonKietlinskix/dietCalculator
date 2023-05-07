@@ -1,13 +1,16 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include <iostream>
 #include "dataBase.hpp"
 #include "imGui/imgui.h"
 #include "imGUi/imgui-SFML.h"
-//#include "products.hpp"
+#include <fstream>
+#include <ctime>
 
 #include <SFML/Graphics/CircleShape.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Clock.hpp>
 #include <SFML/Window/Event.hpp>
+
 
 #define defWindowFlags ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse
 using namespace std;
@@ -61,7 +64,6 @@ void dataBaseMenu(dataBase& dB, flags &fl) {
 	}
 	if (ImGui::Button("Add new record", ImVec2(600, 100))) {
 		fl.toggle(fl.butAddNewRecord);
-		cout << "clicked" << endl;
 	}
 	if (fl.butAddNewRecord == true) {
 		ImGui::SetNextWindowSize(ImVec2(1900, 900));
@@ -75,7 +77,6 @@ void dataBaseMenu(dataBase& dB, flags &fl) {
 		ImGui::InputText("price", p, sizeof(p));
 		ImGui::InputText("cal", c, sizeof(c));
 		if (ImGui::Button("Confirm", ImVec2(600, 100))) {
-			cout << t << endl << n << endl << p << endl << c << endl;;
 			fl.toggle(fl.butConfirm);
 		}
 		if (ImGui::Button("Cancel", ImVec2(600, 100)))
@@ -116,6 +117,42 @@ void printDiet(vector<int> &products, dataBase &dB) {
 	}
 }
 
+fstream createTxtFile() {
+	time_t now = time(0);
+	char *dt = ctime(&now);
+	string fileName = dt;
+	fileName.pop_back();
+	fileName = fileName + ".txt";
+	replace(fileName.begin(), fileName.end(), ':', '.');
+	fstream fout;
+	fout.open(fileName, std::ios_base::out);
+	if (!fout.is_open())
+		cerr << "Failed to open " << fileName << '\n';
+	return fout;
+}
+
+void saveDiet(vector<int> products, dataBase& dB, fstream &fout) {
+	fout<< "Cost of the day: "<< dB.totalCost << " zl" << endl;
+	fout << "Calories of the day: " << dB.totalCalories << " kcal" << endl;
+	for (auto i : products) {
+		switch (i) {
+		case -99:
+			fout << "Lunch:" << endl << endl;
+			break;
+		case -98:
+			fout << "Dinner:" << endl << endl;
+			break;
+		default:
+			product result = dB.getProduct(i);
+			fout << result.type << endl << result.name << endl;
+			fout.precision(2);
+			fout << result.calories << " kcal" << endl;
+			fout << result.price << " zl" << endl;
+			fout << result.portion * 100.0 << " g" << endl << endl;
+		}
+	}
+}
+
 void countDiet(dataBase& dB, flags& fl) {
 	ImGui::SetNextWindowSize(ImVec2(1900, 900));
 	ImGui::Begin("Count Diet", &fl.countDiet, defWindowFlags);
@@ -148,6 +185,8 @@ void countDiet(dataBase& dB, flags& fl) {
 			type = "vegetarian";
 		if (ImGui::Selectable("Standard", nullBool))
 			type = "standard";
+		if (ImGui::Selectable("Vegan", nullBool))
+			type = "vegan";
 		ImGui::ListBoxFooter();;
 	}
 	
@@ -157,18 +196,32 @@ void countDiet(dataBase& dB, flags& fl) {
 		dB.resetUsage();
 		dB.countProf();
 		vector<int> products = dB.countDiet(nOfDays, cal, type);
-		
-
+		static int counter = 0;
+		static fstream f;
 		ImGui::End();
 		ImGui::SetNextWindowSize(ImVec2(1900, 900));
 		ImGui::Begin("Results", &fl.confirmCountDiet, defWindowFlags);
 		ImGui::Columns(nOfDays);
+		if (counter == 0) {
+			f = createTxtFile();
+			counter++;
+		}
 		printDiet(products, dB);
+		if (counter == 1) {
+			f << "Day 1" << endl << endl << endl;
+			saveDiet(products, dB, f);
+			counter++;
+		}
 		if (nOfDays != 1) {
 			for (int j = 0; j < nOfDays-1; j++) {
 				products = dB.countDiet(nOfDays, cal, type);
 				ImGui::NextColumn();
 				printDiet(products, dB);
+				if (counter < nOfDays) {
+					f << "Day " << counter << endl << endl << endl;
+					saveDiet(products, dB, f);
+				}
+				counter++;
 			}
 		}
 	}
@@ -194,13 +247,10 @@ int main(void) {
 
 	ImGuiStyle* style = &ImGui::GetStyle();
 	style->FramePadding = ImVec2(4, 2);
-	//style->Colors[ImGuiCol_WindowBg] = ImVec4(255, 255, 0, 192);
-	//style->Colors[ImGuiCol_Button] = ImVec4(255, 0, 0, 192);
 	
 	style->WindowRounding = 0.40;
 
-	
-	
+
 	sf::Clock deltaClock;
 	while (window.isOpen()) {
 		sf::Event event;
@@ -228,8 +278,6 @@ int main(void) {
 				fl.toggle(fl.countDiet);
 			if (ImGui::Button("Exit", ImVec2(600, 100))) 
 				return 0;
-			
-			
 		}
 		
 		//**right column**//
@@ -240,15 +288,11 @@ int main(void) {
 		if (fl.countDiet)
 			countDiet(dB, fl);
 		ImGui::End();
-		
-		
+
 		window.clear();
 		ImGui::SFML::Render(window);
 		window.display();
-		
 	}
-
 	ImGui::SFML::Shutdown();
-
 	return 0;
 }

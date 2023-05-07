@@ -2,7 +2,6 @@
 
 enum dishes{breakfast, lunch, diner};
 
-
 dataBase::dataBase(const char* loc) {
 	location = loc;
 	openBase();
@@ -26,6 +25,7 @@ void dataBase::openBase() {
 	}
 	isOpen = true;
 }
+
 void dataBase::closeBase() {
 	sqlite3_close(dB);
 	isOpen = false;
@@ -77,6 +77,7 @@ void dataBase::addSingleRecord(product &p) {
 		sqlite3_finalize(stmt);
 	}
 }
+
 static int printBase(void* data, int argc, char** argv, char** azColName) {
 	for (int i = 0; i < argc; i++) 
 		ImGui::Text("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
@@ -95,7 +96,6 @@ void dataBase::showBase() {
 		sqlite3_free(zErrMsg);
 	}
 }
-
 
 static int countRows(void* rows, int argc, char** argv, char** azColName) {
 	int* c = (int*)rows;
@@ -149,14 +149,11 @@ int dataBase::countProf() {
 			rc = sqlite3_step(stmt);
 			sqlite3_finalize(stmt);
 		}
-
-
 	}
 	return 0;
 }
 
 string chooseCategory(string _type, int i, int dish) {
-	if (_type == "standard" or _type == "vegetarian") {
 		switch (i)
 		{
 		case 0:
@@ -167,6 +164,8 @@ string chooseCategory(string _type, int i, int dish) {
 			return "vegetable";
 			break;
 		case 1:
+			if (_type == "vegan")
+				return "vegan";
 			return "diary";
 			break;
 		case 3:
@@ -177,11 +176,14 @@ string chooseCategory(string _type, int i, int dish) {
 		case 4:
 			if (dish == breakfast or dish == diner)
 				return "fruit";
+		case 5:
+			if (_type != "standard")
+				return "vegan";
+			return "diary";
 		default:
 			return "vegetable";
 			break;
 		}
-	}
 	return "vegetable";
 }
 
@@ -237,7 +239,7 @@ vector<int> dataBase::countDiet(int _days, float _cal, string _typ) {
 
 	//breakfast
 	for (int i = 0; calBf > 10; i++) {
-		sql = "SELECT id, calories, price, usage, portion from PRODUCTS WHERE CALORIES < ? AND type = ? ORDER BY USAGE,PROFITABILITY DESC";
+		sql = "SELECT id, calories, price, usage, portion from PRODUCTS WHERE CALORIES < ? AND type = ? AND NOT NAME = 'beef' AND NOT NAME = 'pork' AND NOT NAME = 'chicken' ORDER BY USAGE, PROFITABILITY DESC";
 		getDataForCounting(sql, _cal, result, cost, calTotal, calBf, 1, _typ, i, breakfast);
 	}
 	result.push_back(-99);

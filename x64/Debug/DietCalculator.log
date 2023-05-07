@@ -1,5 +1,5 @@
 ﻿  main.cpp
-C:\Users\xiii5\Desktop\Notatki_stacja\UKSW\indywidualny projekt programistyczny\dietCalculator\main.cpp(159,48): warning C4244: "argument": konwersja z "int" do "float", możliwa utrata danych
-C:\Users\xiii5\Desktop\Notatki_stacja\UKSW\indywidualny projekt programistyczny\dietCalculator\main.cpp(169,38): warning C4244: "argument": konwersja z "int" do "float", możliwa utrata danych
-C:\Users\xiii5\Desktop\Notatki_stacja\UKSW\indywidualny projekt programistyczny\dietCalculator\main.cpp(200,30): warning C4305: "=": obcięcie z "double" do "float"
+C:\Users\xiii5\Desktop\Notatki_stacja\UKSW\indywidualny projekt programistyczny\dietCalculator\main.cpp(198,48): warning C4244: "argument": konwersja z "int" do "float", możliwa utrata danych
+C:\Users\xiii5\Desktop\Notatki_stacja\UKSW\indywidualny projekt programistyczny\dietCalculator\main.cpp(217,38): warning C4244: "argument": konwersja z "int" do "float", możliwa utrata danych
+C:\Users\xiii5\Desktop\Notatki_stacja\UKSW\indywidualny projekt programistyczny\dietCalculator\main.cpp(251,30): warning C4305: "=": obcięcie z "double" do "float"
   dietCalculator.vcxproj -> C:\Users\xiii5\Desktop\Notatki_stacja\UKSW\indywidualny projekt programistyczny\x64\Debug\dietCalculator.exe
