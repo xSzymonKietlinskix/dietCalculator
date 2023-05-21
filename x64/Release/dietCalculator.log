@@ -1,6 +1,28 @@
-﻿  Trwa generowanie kodu
-  0 of 4302 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
+﻿  dataBase.cpp
+C:\Users\xiii5\Desktop\Notatki_stacja\UKSW\indywidualny projekt programistyczny\dietCalculator\dataBase.cpp(66,79): warning C4267: "argument": konwersja z "size_t" do "int", możliwa utrata danych
+C:\Users\xiii5\Desktop\Notatki_stacja\UKSW\indywidualny projekt programistyczny\dietCalculator\dataBase.cpp(69,65): warning C4267: "argument": konwersja z "size_t" do "int", możliwa utrata danych
+C:\Users\xiii5\Desktop\Notatki_stacja\UKSW\indywidualny projekt programistyczny\dietCalculator\dataBase.cpp(70,67): warning C4267: "argument": konwersja z "size_t" do "int", możliwa utrata danych
+C:\Users\xiii5\Desktop\Notatki_stacja\UKSW\indywidualny projekt programistyczny\dietCalculator\dataBase.cpp(119,80): warning C4267: "argument": konwersja z "size_t" do "int", możliwa utrata danych
+C:\Users\xiii5\Desktop\Notatki_stacja\UKSW\indywidualny projekt programistyczny\dietCalculator\dataBase.cpp(133,77): warning C4267: "argument": konwersja z "size_t" do "int", możliwa utrata danych
+C:\Users\xiii5\Desktop\Notatki_stacja\UKSW\indywidualny projekt programistyczny\dietCalculator\dataBase.cpp(201,79): warning C4267: "argument": konwersja z "size_t" do "int", możliwa utrata danych
+C:\Users\xiii5\Desktop\Notatki_stacja\UKSW\indywidualny projekt programistyczny\dietCalculator\dataBase.cpp(207,39): warning C4244: "argument": konwersja z "float" do "int", możliwa utrata danych
+C:\Users\xiii5\Desktop\Notatki_stacja\UKSW\indywidualny projekt programistyczny\dietCalculator\dataBase.cpp(208,82): warning C4267: "argument": konwersja z "size_t" do "int", możliwa utrata danych
+C:\Users\xiii5\Desktop\Notatki_stacja\UKSW\indywidualny projekt programistyczny\dietCalculator\dataBase.cpp(221,16): warning C4244: "inicjowanie": konwersja z "double" do "float", możliwa utrata danych
+C:\Users\xiii5\Desktop\Notatki_stacja\UKSW\indywidualny projekt programistyczny\dietCalculator\dataBase.cpp(224,23): warning C4244: "+=": konwersja z "double" do "float", możliwa utrata danych
+C:\Users\xiii5\Desktop\Notatki_stacja\UKSW\indywidualny projekt programistyczny\dietCalculator\dataBase.cpp(225,19): warning C4244: "+=": konwersja z "double" do "float", możliwa utrata danych
+C:\Users\xiii5\Desktop\Notatki_stacja\UKSW\indywidualny projekt programistyczny\dietCalculator\dataBase.cpp(226,22): warning C4244: "-=": konwersja z "double" do "float", możliwa utrata danych
+C:\Users\xiii5\Desktop\Notatki_stacja\UKSW\indywidualny projekt programistyczny\dietCalculator\dataBase.cpp(229,76): warning C4267: "argument": konwersja z "size_t" do "int", możliwa utrata danych
+C:\Users\xiii5\Desktop\Notatki_stacja\UKSW\indywidualny projekt programistyczny\dietCalculator\dataBase.cpp(242,14): warning C4244: "inicjowanie": konwersja z "double" do "float", możliwa utrata danych
+C:\Users\xiii5\Desktop\Notatki_stacja\UKSW\indywidualny projekt programistyczny\dietCalculator\dataBase.cpp(243,15): warning C4244: "inicjowanie": konwersja z "double" do "float", możliwa utrata danych
+C:\Users\xiii5\Desktop\Notatki_stacja\UKSW\indywidualny projekt programistyczny\dietCalculator\dataBase.cpp(244,15): warning C4244: "inicjowanie": konwersja z "double" do "float", możliwa utrata danych
+C:\Users\xiii5\Desktop\Notatki_stacja\UKSW\indywidualny projekt programistyczny\dietCalculator\dataBase.cpp(284,79): warning C4267: "argument": konwersja z "size_t" do "int", możliwa utrata danych
+C:\Users\xiii5\Desktop\Notatki_stacja\UKSW\indywidualny projekt programistyczny\dietCalculator\dataBase.cpp(289,41): warning C4244: "=": konwersja z "double" do "float", możliwa utrata danych
+C:\Users\xiii5\Desktop\Notatki_stacja\UKSW\indywidualny projekt programistyczny\dietCalculator\dataBase.cpp(290,52): warning C4244: "=": konwersja z "double" do "float", możliwa utrata danych
+C:\Users\xiii5\Desktop\Notatki_stacja\UKSW\indywidualny projekt programistyczny\dietCalculator\dataBase.cpp(291,49): warning C4244: "=": konwersja z "double" do "float", możliwa utrata danych
+C:\Users\xiii5\Desktop\Notatki_stacja\UKSW\indywidualny projekt programistyczny\dietCalculator\dataBase.cpp(307,79): warning C4267: "argument": konwersja z "size_t" do "int", możliwa utrata danych
+  Trwa generowanie kodu
+  2 of 4393 functions (<0.1%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    0 functions had inline decision re-evaluated but remain unchanged
+    81 functions had inline decision re-evaluated but remain unchanged
   Zakończono generowanie kodu
   dietCalculator.vcxproj -> C:\Users\xiii5\Desktop\Notatki_stacja\UKSW\indywidualny projekt programistyczny\x64\Release\dietCalculator.exe

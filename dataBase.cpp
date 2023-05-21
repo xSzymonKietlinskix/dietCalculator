@@ -52,8 +52,6 @@ void dataBase::creatDefaultTable() {
 			cerr << "Error in createDefaultTable function." << endl;
 			sqlite3_free(messageError);
 		}
-		else
-			cout << "Table created Successfully" << endl;
 	}
 	catch (const exception& e)
 	{
@@ -103,12 +101,6 @@ static int countRows(void* rows, int argc, char** argv, char** azColName) {
 	return 0;
 }
 
-static int getData(void* rows, int argc, char** argv, char** azColName) {
-	int* c = (int*)rows;
-	*c = atoi(argv[0]);
-	return 0;
-}
-
 int dataBase::countProf() {
 	double prof = 0;
 
@@ -118,9 +110,6 @@ int dataBase::countProf() {
 	if (rc != SQLITE_OK) {
 		fprintf(stderr, "SQL error: %s\n", zErrMsg);
 		sqlite3_free(zErrMsg);
-	}
-	else {
-		printf("count: %d\n", rows);
 	}
 	string sql;
 	for (int i = 0; i < rows; i++) {
@@ -157,34 +146,54 @@ string chooseCategory(string _type, int i, int dish) {
 		switch (i)
 		{
 		case 0:
+			if (dish == breakfast or dish == diner)
+				return "fruit";
+			if (_type == "vegan")
+				return"fat-vegan";
+			return "fat";
+		case 1:
 			if(_type == "standard")
 				return "meat";
 			if(dish != diner)
 				return "leguminous";
 			return "vegetable";
-			break;
-		case 1:
-			if (_type == "vegan")
-				return "vegan";
-			return "diary";
-			break;
+		case 2:
+			if (dish == breakfast)
+				return "nuts";
+			return "vegetable";
 		case 3:
 			if (dish == breakfast)
 				return "bread";
 			return "dry";
-			break;
 		case 4:
-			if (dish == breakfast or dish == diner)
-				return "fruit";
+			if (_type == "vegan")
+				return "vegan";
+			return "diary";
 		case 5:
 			if (_type != "standard")
 				return "vegan";
 			return "diary";
 		default:
 			return "vegetable";
-			break;
 		}
 	return "vegetable";
+}
+
+double choosePortion(float& _cal, string category) {
+	double multiplier = 1;
+	if (category == "fat" or category == "fat-vegan")
+		multiplier = 0.1;
+	if (category == "nuts")
+		multiplier = 0.2;
+
+	if (_cal > 2800)
+		return 1.7 * multiplier;
+	if (_cal > 2400)
+		return 1.2 * multiplier;
+	if (_cal > 2000)
+		return 1.1 * multiplier;
+
+	return 1*multiplier;
 }
 
 int dataBase::getDataForCounting(string& sql, float & _cal, vector<int>& result, float& cost, float& calTotal, float& calDish, float partOfCal, string _type, int &i, int dish) {
@@ -195,30 +204,33 @@ int dataBase::getDataForCounting(string& sql, float & _cal, vector<int>& result,
 
 	if (rc == SQLITE_OK)
 	{
-		if (calDish < 50)
-			partOfCal = 2;
 		sqlite3_bind_int(stmt, 1, partOfCal * calDish);
 		sqlite3_bind_text(stmt, 2, category.c_str(),category.length(), SQLITE_TRANSIENT);
 		rc = sqlite3_step(stmt);
 
-		if (sqlite3_column_type(stmt, 0) == SQLITE_NULL) // result is NULL
-			return -1;
+		if (sqlite3_column_type(stmt, 0) == SQLITE_NULL)
+			return getDataForCounting(sql, _cal, result, cost, calTotal, calDish, ++partOfCal, _type, i, dish);
 
 		int id = sqlite3_column_int(stmt, 0);
 		int usage = sqlite3_column_int(stmt, 3);
 		double price = sqlite3_column_double(stmt, 2);
 		double calories = sqlite3_column_double(stmt, 1);
-		double portion = sqlite3_column_double(stmt, 4);
+		double portion = choosePortion(_cal, category);
 		result.push_back(id);
-		cost += portion * price;
+
+		float calTmp = portion * calories;
+		if (calDish - calTmp < -1.0)
+			portion = (calDish) / (calTmp);
 		calTotal += portion * calories;
+		cost += portion * price;
 		calDish -= portion * calories;
 		sqlite3_finalize(stmt);
-		sql = "UPDATE PRODUCTS SET USAGE = ? WHERE id = ?";
+		sql = "UPDATE PRODUCTS SET USAGE = ?, PORTION = ? WHERE id = ?";
 		rc = sqlite3_prepare_v2(dB, sql.c_str(), strlen(sql.c_str()), &stmt, NULL);
 
 		sqlite3_bind_double(stmt, 1, ++usage);
-		sqlite3_bind_int(stmt, 2, id);
+		sqlite3_bind_double(stmt, 2, portion);
+		sqlite3_bind_int(stmt, 3, id);
 
 		rc = sqlite3_step(stmt);
 		sqlite3_finalize(stmt);
@@ -226,32 +238,31 @@ int dataBase::getDataForCounting(string& sql, float & _cal, vector<int>& result,
 	return 0;
 }
 
-vector<int> dataBase::countDiet(int _days, float _cal, string _typ) {
+vector<int> dataBase::countDiet(int _days = 1, float _cal = 2000, string _typ = "standard") {
 	float calBf = 0.35 * _cal;
-	float calLun = 0.5 * _cal;
-	float calDin = 0.15 * _cal;
+	float calLun = 0.4 * _cal;
+	float calDin = 0.25 * _cal;
 	float cost = 0;
 	float calTotal = 0;
 	string sql;
 	vector<int> result;
-	bool firstRun = true;
 
 
 	//breakfast
-	for (int i = 0; calBf > 10; i++) {
-		sql = "SELECT id, calories, price, usage, portion from PRODUCTS WHERE CALORIES < ? AND type = ? AND NOT NAME = 'beef' AND NOT NAME = 'pork' AND NOT NAME = 'chicken' ORDER BY USAGE, PROFITABILITY DESC";
+	for (int i = 0; calBf > 1; i++) {
+		sql = "SELECT id, calories, price, usage from PRODUCTS WHERE CALORIES < ? AND type = ? AND NOT NAME = 'beef' AND NOT NAME = 'pork' AND NOT NAME = 'chicken' AND NOT NAME = 'turkey' ORDER BY USAGE, PROFITABILITY DESC";
 		getDataForCounting(sql, _cal, result, cost, calTotal, calBf, 1, _typ, i, breakfast);
 	}
 	result.push_back(-99);
 	//lunch 
-	for (int i = 0; calLun > 10; i++) {
-		sql = "SELECT id, calories, price, usage, portion from PRODUCTS WHERE CALORIES < ? AND type = ? ORDER BY USAGE,PROFITABILITY DESC";
+	for (int i = 0; calLun > 1; i++) {
+		sql = "SELECT id, calories, price, usage from PRODUCTS WHERE CALORIES < ? AND type = ? ORDER BY USAGE,PROFITABILITY DESC";
 		getDataForCounting(sql, _cal, result, cost, calTotal, calLun, 1, _typ, i, lunch);
 	}
 	result.push_back(-98);
 	//diner
-	for (int i = 0; calDin > 10; i++) {
-		sql = "SELECT id, calories, price, usage, portion from PRODUCTS WHERE CALORIES < ? AND type = ? ORDER BY USAGE,PROFITABILITY DESC";
+	for (int i = 0; calDin > 1; i++) {
+		sql = "SELECT id, calories, price, usage from PRODUCTS WHERE CALORIES < ? AND type = ? ORDER BY USAGE,PROFITABILITY DESC";
 		getDataForCounting(sql, _cal, result, cost, calTotal, calDin, 1, _typ, i, diner);
 	}
 	totalCalories = calTotal;
@@ -262,9 +273,8 @@ vector<int> dataBase::countDiet(int _days, float _cal, string _typ) {
 
 
 void dataBase::resetUsage() {
-	string sql = "UPDATE PRODUCTS SET USAGE=0 WHERE 1";
-	int exit;
-	exit = sqlite3_exec(dB, sql.c_str(), NULL, 0, NULL);
+	string sql = "UPDATE PRODUCTS SET USAGE=0, PORTION=1 WHERE 1";
+	int exit = sqlite3_exec(dB, sql.c_str(), NULL, 0, NULL);
 }
 
 product dataBase::getProduct(int id) {
@@ -289,5 +299,17 @@ product dataBase::getProduct(int id) {
 		sqlite3_finalize(stmt);
 	}
 	return result;
+}
+
+void dataBase::removeRecord(int id) {
+	string sql = "DELETE from PRODUCTS WHERE id = ?";
+	sqlite3_stmt* stmt;
+	int rc = sqlite3_prepare_v2(dB, sql.c_str(), strlen(sql.c_str()), &stmt, NULL);
+	if (rc == SQLITE_OK)
+	{
+		sqlite3_bind_int(stmt, 1, id);
+		rc = sqlite3_step(stmt);
+		sqlite3_finalize(stmt);
+	}
 }
 

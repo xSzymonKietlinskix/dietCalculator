@@ -28,10 +28,12 @@ public:
 	bool selectType;
 	bool updateProf;
 	bool confirmCountDiet;
-	bool result;
+	bool showDiet;
+	bool removeFiles;
+	bool removeRecord;
 	void toggle(bool& stat);
 	flags() :updateProf(false), showData(false),butDataBaseMenu(false), butAddNewRecord(false), menu(true), NewRecord(false), butConfirm(false), countDiet(false),
-		numOfDays(false), selectType(false), confirmCountDiet(false), result(true){};
+		numOfDays(false), selectType(false), confirmCountDiet(false), showDiet(false), removeFiles(false), removeRecord(false) {};
 };
 
 void flags::toggle(bool& stat) {
@@ -43,21 +45,16 @@ void flags::toggle(bool& stat) {
 
 
 void dataBaseMenu(dataBase& dB, flags &fl) {
-	if (ImGui::Button("Creat default table (if not exists)", ImVec2(600, 100)))
-		dB.creatDefaultTable();
 	if (ImGui::Button("Show data", ImVec2(600, 100)))
 		fl.toggle(fl.showData);
-	if (ImGui::Button("Update PROFITABILITY", ImVec2(600, 100)))
-		dB.countProf();
-	if (ImGui::Button("Reset Usage", ImVec2(600, 100)))
-		dB.resetUsage();
+	if (ImGui::Button("Remove Saved Dieta Files", ImVec2(600, 100)))
+		fl.toggle(fl.removeFiles);
 		
 		
 	if (fl.showData) {
 		ImGui::SetNextWindowSize(ImVec2(1900, 900));
 		ImGui::Begin("Data Base", &fl.showData, defWindowFlags);
 		dB.showBase();
-		dB.countDiet(1, 1, "Nope");
 		if (ImGui::Button("Close", ImVec2(600, 100)))
 			fl.toggle(fl.showData);
 		ImGui::End();
@@ -65,7 +62,10 @@ void dataBaseMenu(dataBase& dB, flags &fl) {
 	if (ImGui::Button("Add new record", ImVec2(600, 100))) {
 		fl.toggle(fl.butAddNewRecord);
 	}
-	if (fl.butAddNewRecord == true) {
+	if (ImGui::Button("Remove record", ImVec2(600, 100))) {
+		fl.toggle(fl.removeRecord);
+	}
+	if (fl.butAddNewRecord) {
 		ImGui::SetNextWindowSize(ImVec2(1900, 900));
 		ImGui::Begin("Add new record",&fl.butAddNewRecord, defWindowFlags);
 		static char t[128] = "";
@@ -86,15 +86,39 @@ void dataBaseMenu(dataBase& dB, flags &fl) {
 			product pr(t, n, stof(c), stof(p));
 			dB.addSingleRecord(pr);
 			fl.toggle(fl.butConfirm);
-			fl.butAddNewRecord = false;
+			fl.toggle(fl.butAddNewRecord);
 		}
 		ImGui::End();
 	}
+	if (fl.removeRecord) {
+		ImGui::SetNextWindowSize(ImVec2(1900, 900));
+		ImGui::Begin("Remove record", &fl.removeRecord, defWindowFlags);
+		static char id[5];
+		ImGui::InputText("id", id, sizeof(id));
+		if (ImGui::Button("Confirm", ImVec2(600, 100))) {
+			fl.toggle(fl.butConfirm);
+		}
+		if (ImGui::Button("Cancel", ImVec2(600, 100)))
+			fl.toggle(fl.removeRecord);
+		if (fl.butConfirm) {
+			dB.removeRecord(stof(id));
+			fl.toggle(fl.butConfirm);
+			fl.toggle(fl.removeRecord);
+		}
+		ImGui::End();
+	}
+	if (fl.removeFiles) {
+		char command[20];
+		strcpy(command, "del *.");
+		strcat(command, "txt");
+		system(command);
+		fl.toggle(fl.removeFiles);
+	}
 }
 
-void printDiet(vector<int> &products, dataBase &dB) {
-	ImGui::Text("Cost of the day: %.2f zl", dB.totalCost);
-	ImGui::Text("Calories of the day: %.2f kcal", dB.totalCalories);
+void printDiet(vector<int> &products, dataBase &dB, double totalCost, double totalCal) {
+	ImGui::Text("Cost of the day: %.2f zl", totalCost);
+	ImGui::Text("Calories of the day: %.2f kcal", totalCal);
 
 	ImGui::Text("\nBreakfast: \n \n");
 	for (int i : products) {
@@ -131,9 +155,11 @@ fstream createTxtFile() {
 	return fout;
 }
 
-void saveDiet(vector<int> products, dataBase& dB, fstream &fout) {
-	fout<< "Cost of the day: "<< dB.totalCost << " zl" << endl;
-	fout << "Calories of the day: " << dB.totalCalories << " kcal" << endl;
+void saveDiet(vector<int> products, dataBase& dB, fstream &fout, double totalCost, double totalCal) {
+	fout.precision(2);
+	fout << fixed;
+	fout<< "Cost of the day: "<< totalCost << " zl" << endl;
+	fout << "Calories of the day: " << totalCal << " kcal" << endl <<endl;
 	for (auto i : products) {
 		switch (i) {
 		case -99:
@@ -145,7 +171,6 @@ void saveDiet(vector<int> products, dataBase& dB, fstream &fout) {
 		default:
 			product result = dB.getProduct(i);
 			fout << result.type << endl << result.name << endl;
-			fout.precision(2);
 			fout << result.calories << " kcal" << endl;
 			fout << result.price << " zl" << endl;
 			fout << result.portion * 100.0 << " g" << endl << endl;
@@ -153,7 +178,7 @@ void saveDiet(vector<int> products, dataBase& dB, fstream &fout) {
 	}
 }
 
-void countDiet(dataBase& dB, flags& fl) {
+void countDiet(dataBase& dB, flags& fl, vector<vector<int>>&listOfProducts, vector<double>& costAndCal) {
 	ImGui::SetNextWindowSize(ImVec2(1900, 900));
 	ImGui::Begin("Count Diet", &fl.countDiet, defWindowFlags);
 	static int cal = 0;
@@ -161,6 +186,8 @@ void countDiet(dataBase& dB, flags& fl) {
 	static int nOfDays = 0;
 	bool nullBool = false;
 	ImGui::InputInt("Calories", &cal, sizeof(cal));
+	if (cal > 4500 or cal < 500)
+		cal = 2000;
 
 	if (ImGui::Button("Number of days", ImVec2(600, 100)))
 		fl.toggle(fl.numOfDays);
@@ -192,10 +219,27 @@ void countDiet(dataBase& dB, flags& fl) {
 	
 	if (ImGui::Button("Confirm", ImVec2(600, 100)))
 		fl.toggle(fl.confirmCountDiet);
+	if (ImGui::Button("Cancel", ImVec2(600, 100)))
+		fl.toggle(fl.countDiet);
 	if (fl.confirmCountDiet) {
 		dB.resetUsage();
 		dB.countProf();
 		vector<int> products = dB.countDiet(nOfDays, cal, type);
+		listOfProducts.push_back(products);
+		costAndCal.push_back(dB.totalCalories);
+		costAndCal.push_back(dB.totalCost);
+		if (nOfDays != 1) {
+			for (int j = 0; j < nOfDays-1; j++) {
+				products = dB.countDiet(nOfDays, cal, type);
+				listOfProducts.push_back(products);
+				costAndCal.push_back(dB.totalCalories);
+				costAndCal.push_back(dB.totalCost);
+			}
+		}
+		fl.toggle(fl.showDiet);
+		fl.toggle(fl.confirmCountDiet);
+	}
+	if (fl.showDiet) {
 		static int counter = 0;
 		static fstream f;
 		ImGui::End();
@@ -206,33 +250,36 @@ void countDiet(dataBase& dB, flags& fl) {
 			f = createTxtFile();
 			counter++;
 		}
-		printDiet(products, dB);
+		printDiet(listOfProducts[0], dB, costAndCal[1], costAndCal[0]);
 		if (counter == 1) {
 			f << "Day 1" << endl << endl << endl;
-			saveDiet(products, dB, f);
+			saveDiet(listOfProducts[0], dB, f, costAndCal[1], costAndCal[0]);
 			counter++;
 		}
 		if (nOfDays != 1) {
-			for (int j = 0; j < nOfDays-1; j++) {
-				products = dB.countDiet(nOfDays, cal, type);
+			for (int j = 0; j < nOfDays - 1; j++) {
 				ImGui::NextColumn();
-				printDiet(products, dB);
-				if (counter < nOfDays) {
+				printDiet(listOfProducts[j+1], dB, costAndCal[(j+1)*2+1], costAndCal[(j+1)*2]);
+				if (counter < nOfDays + 1) {
 					f << "Day " << counter << endl << endl << endl;
-					saveDiet(products, dB, f);
+					saveDiet(listOfProducts[j + 1], dB, f, costAndCal[(j+1) * 2 + 1], costAndCal[(j+1) * 2]);
 				}
 				counter++;
 			}
+		}
+		if (ImGui::Button("Close", ImVec2(600, 100))) {
+			fl.toggle(fl.showDiet);
+			fl.toggle(fl.countDiet);
 		}
 	}
 	
 	ImGui::End();
 }
 
-int main(void) {
+int WinMain(void) {
 	
 	
-	const char* location = "dataBase/newDataBase.db";
+	const char* location = "dataBase/products.db";
 	dataBase dB(location);
 	flags fl;
 
@@ -271,22 +318,24 @@ int main(void) {
 		
 			ImGui::Columns(2);
 			ImGui::SetColumnOffset(1, 600);
+			
 
-			if (ImGui::Button("Data base menu",ImVec2(600,100)))
-				fl.toggle(fl.butDataBaseMenu);
 			if (ImGui::Button("Count diet", ImVec2(600, 100))) 
 				fl.toggle(fl.countDiet);
+			if (ImGui::Button("Options",ImVec2(600,100)))
+				fl.toggle(fl.butDataBaseMenu);
 			if (ImGui::Button("Exit", ImVec2(600, 100))) 
 				return 0;
 		}
 		
 		//**right column**//
-
+		static vector<vector<int>> listOfProducts;
+		static vector<double> costAndCal;
 		ImGui::NextColumn();
 		if (fl.butDataBaseMenu)
 			dataBaseMenu(dB, fl);
 		if (fl.countDiet)
-			countDiet(dB, fl);
+			countDiet(dB, fl, listOfProducts, costAndCal);
 		ImGui::End();
 
 		window.clear();
